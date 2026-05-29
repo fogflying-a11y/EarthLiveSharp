@@ -64,7 +64,7 @@ namespace EarthLiveSharp
         /// </summary>
         public static bool ProbeExists(string publicId, string cloudName)
         {
-            string url = string.Format("{0}/{1}/image/upload/{2}.png", FETCH_BASE, cloudName, publicId);
+            string url = BuildCdnUrl(publicId, cloudName);
             HttpWebRequest request = WebRequest.Create(url) as HttpWebRequest;
             request.Method = "HEAD";
             request.Timeout = 10000;
@@ -72,17 +72,8 @@ namespace EarthLiveSharp
             {
                 using (HttpWebResponse response = request.GetResponse() as HttpWebResponse)
                 {
-                    if (response.StatusCode == HttpStatusCode.OK)
-                    {
-                        Trace.WriteLine("[upload_mode] HEAD probe 200: " + publicId);
-                        return true;
-                    }
-                    if (response.StatusCode == HttpStatusCode.NotFound)
-                    {
-                        Trace.WriteLine("[upload_mode] HEAD probe 404: " + publicId);
-                        return false;
-                    }
-                    throw new Exception("HTTP " + (int)response.StatusCode);
+                    Trace.WriteLine("[upload_mode] HEAD probe 200: " + publicId);
+                    return true;
                 }
             }
             catch (WebException we)
