@@ -27,11 +27,28 @@ namespace EarthLiveSharp
         /// Build dynamic public_id from NICT image ID and size.
         /// imageID format: "2026/05/29/072000"
         /// Returns: "earthlivesharp/4x4/20260529_0720"
+        /// Returns null if imageId format is invalid.
         /// </summary>
         public static string PublicIdFromImageId(string imageId, int size)
         {
+            if (string.IsNullOrEmpty(imageId))
+            {
+                Trace.WriteLine("[upload_mode] PublicIdFromImageId: empty imageId");
+                return null;
+            }
             string[] parts = imageId.Split('/');
-            string timestamp = parts[0] + parts[1] + parts[2] + "_" + parts[3].Substring(0, 4);
+            if (parts.Length < 4)
+            {
+                Trace.WriteLine("[upload_mode] PublicIdFromImageId: invalid format: " + imageId);
+                return null;
+            }
+            string timePart = parts[3].Trim();
+            if (timePart.Length < 4)
+            {
+                Trace.WriteLine("[upload_mode] PublicIdFromImageId: time part too short: " + imageId);
+                return null;
+            }
+            string timestamp = parts[0] + parts[1] + parts[2] + "_" + timePart.Substring(0, 4);
             return string.Format("earthlivesharp/{0}x{0}/{1}", size, timestamp);
         }
 
