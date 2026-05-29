@@ -413,61 +413,23 @@ namespace EarthLiveSharp
                 return;
             }
 
-            // Step 3: Probe CDN for this dynamic_id
-            bool cdnHasResource;
+            // Step 3: Download from CDN (probe + fetch in one request)
             try
             {
-                cdnHasResource = CloudinaryUpload.ProbeExists(dynamicId, Cfg.cloud_name);
+                if (CloudinaryUpload.DownloadFromCloudinary(dynamicId, Cfg.cloud_name, wallpaperPath))
+                {
+                    Trace.WriteLine("[cdn_only] served from CDN cache: " + dynamicId);
+                    lastUpdateStatus = "cdn_hit";
+                    return;
+                }
             }
             catch (Exception ex)
             {
-                Trace.WriteLine("[cdn_only] HEAD probe failed — falling back to NICT: " + ex.Message);
-                // Probe failure — fall back to NICT directly
-                cdnHasResource = false;
+                Trace.WriteLine("[cdn_only] CDN download failed: " + ex.Message);
             }
 
-            if (cdnHasResource)
-            {
-                // CDN hit — download directly, skip NICT tiles
-                try
-                {
-                    if (CloudinaryUpload.DownloadFromCloudinary(dynamicId, Cfg.cloud_name, wallpaperPath))
-                    {
-                        Trace.WriteLine("[cdn_only] served from CDN cache: " + dynamicId);
-                        lastUpdateStatus = "cdn_hit";
-                        return;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Trace.WriteLine("[cdn_only] CDN download failed after HEAD hit: " + ex.Message);
-                }
-            }
-
-            // CDN miss or probe/download failure — fetch from NICT directly (no upload)
-            if (!imageID.Equals(last_imageID))
-            {
-                int originalSource = Cfg.source_selection;
-                Cfg.source_selection = 0;
-                bool saveOk = (SaveImage() == 0);
-                Cfg.source_selection = originalSource;
-                if (saveOk)
-                {
-                    JoinImage();
-                    Trace.WriteLine("[cdn_only] served from NICT direct (no CDN resource for this slot)");
-                    lastUpdateStatus = "nict_direct";
-                }
-                else
-                {
-                    Trace.WriteLine("[cdn_only] NICT tile download failed");
-                    lastUpdateStatus = "all_sources_failed";
-                }
-            }
-            else
-            {
-                // Same image as last cycle — nothing new
-                lastUpdateStatus = "cdn_hit";
-            }
+            // CDN has no resource for this time slot yet — skip and wait for next cycle
+            lastUpdateStatus = "cdn_miss_skip";
         }
         public void CleanCDN()
         {
