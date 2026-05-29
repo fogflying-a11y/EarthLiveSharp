@@ -368,8 +368,8 @@ namespace EarthLiveSharp
                 {
                     Trace.WriteLine("[upload_mode] NICT refresh uploaded to Cloudinary: " + dynamicId);
 
-                    // Delete previous time slot's resource
-                    if (!string.IsNullOrEmpty(previousPublicId))
+                    // Delete previous time slot's resource (skip if same image re-uploaded)
+                    if (!string.IsNullOrEmpty(previousPublicId) && previousPublicId != dynamicId)
                     {
                         CloudinaryUpload.DeleteResource(previousPublicId, Cfg.cloud_name, Cfg.api_key, Cfg.api_secret);
                     }
