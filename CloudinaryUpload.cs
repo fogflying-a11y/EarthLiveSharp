@@ -99,10 +99,17 @@ namespace EarthLiveSharp
         /// </summary>
         public static bool DeleteResource(string publicId, string cloudName, string apiKey, string apiSecret)
         {
+            if (string.IsNullOrEmpty(publicId) || string.IsNullOrEmpty(cloudName) || string.IsNullOrEmpty(apiKey) || string.IsNullOrEmpty(apiSecret))
+            {
+                Trace.WriteLine("[upload_mode] delete skipped: missing parameters");
+                return false;
+            }
+
             string deleteUrl = string.Format("https://api.cloudinary.com/v1_1/{0}/resources/image/upload/{1}", cloudName, publicId);
             HttpWebRequest request = WebRequest.Create(deleteUrl) as HttpWebRequest;
             request.Method = "DELETE";
             request.Timeout = 10000;
+            request.ReadWriteTimeout = 10000;
             string svcCredentials = Convert.ToBase64String(Encoding.ASCII.GetBytes(apiKey + ":" + apiSecret));
             request.Headers.Add("Authorization", "Basic " + svcCredentials);
             try
@@ -112,6 +119,11 @@ namespace EarthLiveSharp
                     if (response.StatusCode == HttpStatusCode.OK)
                     {
                         Trace.WriteLine("[upload_mode] deleted old resource: " + publicId);
+                        return true;
+                    }
+                    if (response.StatusCode == HttpStatusCode.NotFound)
+                    {
+                        Trace.WriteLine("[upload_mode] delete: resource already gone: " + publicId);
                         return true;
                     }
                     Trace.WriteLine("[upload_mode] delete returned HTTP " + (int)response.StatusCode + " for: " + publicId);
