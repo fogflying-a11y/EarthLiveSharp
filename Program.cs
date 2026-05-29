@@ -108,6 +108,7 @@ namespace EarthLiveSharp
         private string json_url = "https://himawari8-dl.nict.go.jp/himawari8/img/FULL_24h/latest.json";
         private DateTime lastNictRefreshUtc = DateTime.MinValue;
         private bool stopUpdates = false;
+        private string previousPublicId = ""; // tracks last uploaded public_id for cleanup
         public string lastUpdateStatus = "";
 
         private int GetImageID()
@@ -291,37 +292,60 @@ namespace EarthLiveSharp
         private void UpdateImage_UploadMode()
         {
             int size = Cfg.size;
-            string publicId = CloudinaryUpload.PublicIdForSize(size);
             string wallpaperPath = string.Format("{0}\\wallpaper.bmp", Cfg.image_folder);
 
-            bool needsNictRefresh = (DateTime.UtcNow - lastNictRefreshUtc).TotalMinutes >= Cfg.interval;
-
-            if (!needsNictRefresh)
-            {
-                try
-                {
-                    if (CloudinaryUpload.DownloadFromCloudinary(publicId, Cfg.cloud_name, wallpaperPath))
-                    {
-                        Trace.WriteLine("[upload_mode] served from CDN cache: " + publicId);
-                        lastUpdateStatus = "cdn_cache";
-                        return;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Trace.WriteLine("[upload_mode] CDN download failed during interval window: " + ex.Message);
-                }
-                lastUpdateStatus = "all_sources_failed";
-                return;
-            }
-
-            // Time to refresh from NICT
+            // Step 1: Get latest image ID from NICT (confirms official time slot)
             if (GetImageID() == -1)
             {
                 Trace.WriteLine("[upload_mode] NICT GetImageID failed");
                 lastUpdateStatus = "all_sources_failed";
                 return;
             }
+
+            // Step 2: Calculate dynamic public_id from confirmed NICT timestamp
+            string dynamicId = GetCurrentPublicId();
+            if (dynamicId == null)
+            {
+                Trace.WriteLine("[upload_mode] invalid dynamic public_id");
+                lastUpdateStatus = "all_sources_failed";
+                return;
+            }
+
+            // Step 3: Probe CDN for this dynamic_id
+            bool cdnHasResource;
+            try
+            {
+                cdnHasResource = CloudinaryUpload.ProbeExists(dynamicId, Cfg.cloud_name);
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine("[upload_mode] HEAD probe failed — stopping updates: " + ex.Message);
+                stopUpdates = true;
+                lastUpdateStatus = "upload_failed_stop";
+                return;
+            }
+
+            if (cdnHasResource)
+            {
+                // CDN hit — download directly, skip NICT tiles
+                try
+                {
+                    if (CloudinaryUpload.DownloadFromCloudinary(dynamicId, Cfg.cloud_name, wallpaperPath))
+                    {
+                        Trace.WriteLine("[upload_mode] served from CDN cache: " + dynamicId);
+                        lastUpdateStatus = "cdn_hit";
+                        return;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Trace.WriteLine("[upload_mode] CDN download failed after HEAD hit: " + ex.Message);
+                }
+                lastUpdateStatus = "all_sources_failed";
+                return;
+            }
+
+            // CDN miss — fetch from NICT source station
             if (!imageID.Equals(last_imageID))
             {
                 int originalSource = Cfg.source_selection;
@@ -329,18 +353,31 @@ namespace EarthLiveSharp
                 bool saveOk = (SaveImage() == 0);
                 Cfg.source_selection = originalSource;
                 if (saveOk) JoinImage();
+                else
+                {
+                    Trace.WriteLine("[upload_mode] NICT tile download failed");
+                    lastUpdateStatus = "all_sources_failed";
+                    return;
+                }
             }
 
-            // Upload to Cloudinary — fatal, not best-effort
+            // Upload to Cloudinary
             try
             {
                 bool ok = CloudinaryUpload.UploadImage(
-                    wallpaperPath, publicId,
+                    wallpaperPath, dynamicId,
                     Cfg.cloud_name, Cfg.api_key, Cfg.api_secret);
                 if (ok)
                 {
-                    Trace.WriteLine("[upload_mode] NICT refresh uploaded to Cloudinary: " + publicId);
-                    lastNictRefreshUtc = DateTime.UtcNow;
+                    Trace.WriteLine("[upload_mode] NICT refresh uploaded to Cloudinary: " + dynamicId);
+
+                    // Delete previous time slot's resource
+                    if (!string.IsNullOrEmpty(previousPublicId))
+                    {
+                        CloudinaryUpload.DeleteResource(previousPublicId, Cfg.cloud_name, Cfg.api_key, Cfg.api_secret);
+                    }
+                    previousPublicId = dynamicId;
+
                     lastUpdateStatus = "nict_upload_ok";
                 }
                 else
