@@ -93,6 +93,38 @@ namespace EarthLiveSharp
             }
         }
 
+        /// <summary>
+        /// Delete a resource from Cloudinary via Admin API (Basic Auth).
+        /// Non-fatal — returns false on error, caller should log.
+        /// </summary>
+        public static bool DeleteResource(string publicId, string cloudName, string apiKey, string apiSecret)
+        {
+            string deleteUrl = string.Format("https://api.cloudinary.com/v1_1/{0}/resources/image/upload/{1}", cloudName, publicId);
+            HttpWebRequest request = WebRequest.Create(deleteUrl) as HttpWebRequest;
+            request.Method = "DELETE";
+            request.Timeout = 10000;
+            string svcCredentials = Convert.ToBase64String(Encoding.ASCII.GetBytes(apiKey + ":" + apiSecret));
+            request.Headers.Add("Authorization", "Basic " + svcCredentials);
+            try
+            {
+                using (HttpWebResponse response = request.GetResponse() as HttpWebResponse)
+                {
+                    if (response.StatusCode == HttpStatusCode.OK)
+                    {
+                        Trace.WriteLine("[upload_mode] deleted old resource: " + publicId);
+                        return true;
+                    }
+                    Trace.WriteLine("[upload_mode] delete returned HTTP " + (int)response.StatusCode + " for: " + publicId);
+                    return false;
+                }
+            }
+            catch (Exception e)
+            {
+                Trace.WriteLine("[upload_mode] delete error (non-fatal): " + e.Message);
+                return false;
+            }
+        }
+
         public static bool UploadImage(string filePath, string publicId, string cloudName, string apiKey, string apiSecret)
         {
             string timestamp = ((long)(DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalSeconds).ToString();
