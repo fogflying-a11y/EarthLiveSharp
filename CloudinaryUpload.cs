@@ -58,6 +58,50 @@ namespace EarthLiveSharp
             }
         }
 
+        /// <summary>
+        /// HTTP HEAD probe to check if a CDN resource exists.
+        /// Returns true on 200, false on 404, throws on other errors.
+        /// </summary>
+        public static bool ProbeExists(string publicId, string cloudName)
+        {
+            string url = string.Format("{0}/{1}/image/upload/{2}.png", FETCH_BASE, cloudName, publicId);
+            HttpWebRequest request = WebRequest.Create(url) as HttpWebRequest;
+            request.Method = "HEAD";
+            request.Timeout = 10000;
+            try
+            {
+                using (HttpWebResponse response = request.GetResponse() as HttpWebResponse)
+                {
+                    if (response.StatusCode == HttpStatusCode.OK)
+                    {
+                        Trace.WriteLine("[upload_mode] HEAD probe 200: " + publicId);
+                        return true;
+                    }
+                    if (response.StatusCode == HttpStatusCode.NotFound)
+                    {
+                        Trace.WriteLine("[upload_mode] HEAD probe 404: " + publicId);
+                        return false;
+                    }
+                    throw new Exception("HTTP " + (int)response.StatusCode);
+                }
+            }
+            catch (WebException we)
+            {
+                if (we.Response is HttpWebResponse errorResponse)
+                {
+                    if (errorResponse.StatusCode == HttpStatusCode.NotFound)
+                    {
+                        Trace.WriteLine("[upload_mode] HEAD probe 404: " + publicId);
+                        errorResponse.Close();
+                        return false;
+                    }
+                    errorResponse.Close();
+                }
+                Trace.WriteLine("[upload_mode] HEAD probe error: " + we.Message);
+                throw;
+            }
+        }
+
         public static bool UploadImage(string filePath, string publicId, string cloudName, string apiKey, string apiSecret)
         {
             string timestamp = ((long)(DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalSeconds).ToString();
