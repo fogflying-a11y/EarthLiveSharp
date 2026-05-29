@@ -215,6 +215,9 @@ namespace EarthLiveSharp
                 case "nict_upload_ok":
                     notifyIcon1.ShowBalloonTip(3000, "EarthLiveSharp", "壁纸已从源站更新并上传CDN", ToolTipIcon.Info);
                     break;
+                case "nict_direct":
+                    notifyIcon1.ShowBalloonTip(3000, "EarthLiveSharp", "CDN暂无资源，已从源站直接更新", ToolTipIcon.Info);
+                    break;
                 case "all_sources_failed":
                     notifyIcon1.ShowBalloonTip(3000, "EarthLiveSharp", "所有图像源均不可用，请检查网络", ToolTipIcon.Error);
                     break;

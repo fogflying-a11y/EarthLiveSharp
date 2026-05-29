@@ -394,25 +394,80 @@ namespace EarthLiveSharp
 
         private void UpdateImage_CdnOnly()
         {
-            int size = Cfg.size;
-            string publicId = CloudinaryUpload.PublicIdForSize(size);
             string wallpaperPath = string.Format("{0}\\wallpaper.bmp", Cfg.image_folder);
 
+            // Step 1: Get latest image ID from NICT (confirms official time slot)
+            if (GetImageID() == -1)
+            {
+                Trace.WriteLine("[cdn_only] NICT GetImageID failed");
+                lastUpdateStatus = "all_sources_failed";
+                return;
+            }
+
+            // Step 2: Calculate dynamic public_id from confirmed NICT timestamp
+            string dynamicId = GetCurrentPublicId();
+            if (dynamicId == null)
+            {
+                Trace.WriteLine("[cdn_only] invalid dynamic public_id");
+                lastUpdateStatus = "all_sources_failed";
+                return;
+            }
+
+            // Step 3: Probe CDN for this dynamic_id
+            bool cdnHasResource;
             try
             {
-                if (CloudinaryUpload.DownloadFromCloudinary(publicId, Cfg.cloud_name, wallpaperPath))
-                {
-                    Trace.WriteLine("[cdn_only] served from Cloudinary cache: " + publicId);
-                    lastUpdateStatus = "cdn_cache";
-                    return;
-                }
+                cdnHasResource = CloudinaryUpload.ProbeExists(dynamicId, Cfg.cloud_name);
             }
             catch (Exception ex)
             {
-                Trace.WriteLine("[cdn_only] CDN download failed: " + ex.Message);
+                Trace.WriteLine("[cdn_only] HEAD probe failed — falling back to NICT: " + ex.Message);
+                // Probe failure — fall back to NICT directly
+                cdnHasResource = false;
             }
-            lastUpdateStatus = "all_sources_failed";
-            Trace.WriteLine("[cdn_only] no wallpaper updated");
+
+            if (cdnHasResource)
+            {
+                // CDN hit — download directly, skip NICT tiles
+                try
+                {
+                    if (CloudinaryUpload.DownloadFromCloudinary(dynamicId, Cfg.cloud_name, wallpaperPath))
+                    {
+                        Trace.WriteLine("[cdn_only] served from CDN cache: " + dynamicId);
+                        lastUpdateStatus = "cdn_hit";
+                        return;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Trace.WriteLine("[cdn_only] CDN download failed after HEAD hit: " + ex.Message);
+                }
+            }
+
+            // CDN miss or probe/download failure — fetch from NICT directly (no upload)
+            if (!imageID.Equals(last_imageID))
+            {
+                int originalSource = Cfg.source_selection;
+                Cfg.source_selection = 0;
+                bool saveOk = (SaveImage() == 0);
+                Cfg.source_selection = originalSource;
+                if (saveOk)
+                {
+                    JoinImage();
+                    Trace.WriteLine("[cdn_only] served from NICT direct (no CDN resource for this slot)");
+                    lastUpdateStatus = "nict_direct";
+                }
+                else
+                {
+                    Trace.WriteLine("[cdn_only] NICT tile download failed");
+                    lastUpdateStatus = "all_sources_failed";
+                }
+            }
+            else
+            {
+                // Same image as last cycle — nothing new
+                lastUpdateStatus = "cdn_hit";
+            }
         }
         public void CleanCDN()
         {
