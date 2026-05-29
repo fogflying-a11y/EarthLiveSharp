@@ -291,7 +291,6 @@ namespace EarthLiveSharp
 
         private void UpdateImage_UploadMode()
         {
-            int size = Cfg.size;
             string wallpaperPath = string.Format("{0}\\wallpaper.bmp", Cfg.image_folder);
 
             // Step 1: Get latest image ID from NICT (confirms official time slot)
@@ -341,11 +340,10 @@ namespace EarthLiveSharp
                 {
                     Trace.WriteLine("[upload_mode] CDN download failed after HEAD hit: " + ex.Message);
                 }
-                lastUpdateStatus = "all_sources_failed";
-                return;
+                lastUpdateStatus = "cdn_get_failed";
             }
 
-            // CDN miss — fetch from NICT source station
+            // CDN miss or GET failure — fetch from NICT source station
             if (!imageID.Equals(last_imageID))
             {
                 int originalSource = Cfg.source_selection;
