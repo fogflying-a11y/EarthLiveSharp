@@ -106,7 +106,6 @@ namespace EarthLiveSharp
         private string imageID = "";
         private static string last_imageID = "0";
         private string json_url = "https://himawari8-dl.nict.go.jp/himawari8/img/FULL_24h/latest.json";
-        private DateTime lastNictRefreshUtc = DateTime.MinValue;
         private bool stopUpdates = false;
         private string previousPublicId = ""; // tracks last uploaded public_id for cleanup
         public string lastUpdateStatus = "";
@@ -468,7 +467,7 @@ namespace EarthLiveSharp
         public void ResetState()
         {
             last_imageID = "0";
-            lastNictRefreshUtc = DateTime.UtcNow;
+            previousPublicId = "";
             stopUpdates = false;
         }
     }
