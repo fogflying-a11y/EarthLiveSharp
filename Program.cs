@@ -93,6 +93,11 @@ namespace EarthLiveSharp
         {
             scraper.CleanCDN();
         }
+
+        public static void CleanOldResources()
+        {
+            scraper.CleanOldResources();
+        }
     }
 
     interface IScraper
@@ -100,6 +105,7 @@ namespace EarthLiveSharp
         void UpdateImage();
         void CleanCDN();
         void ResetState();
+        void CleanOldResources();
     }
     public class Scraper_himawari8 : IScraper
     {
@@ -480,6 +486,124 @@ namespace EarthLiveSharp
                 Trace.WriteLine(e.Message);
                 return;
             }
+        }
+        /// <summary>
+        /// Periodic cleanup: list resources under earthlivesharp/ prefix,
+        /// batch-delete any older than 10 hours.
+        /// Runs independently of per-upload DeleteResource.
+        /// </summary>
+        public void CleanOldResources()
+        {
+            if (Cfg.api_key.Length == 0) return;
+            if (Cfg.api_secret.Length == 0) return;
+
+            DateTime cutoff = DateTime.UtcNow.AddHours(-10);
+            Trace.WriteLine("[upload_mode] periodic cleanup started, cutoff: " + cutoff.ToString("yyyy-MM-dd HH:mm"));
+
+            int totalDeleted = 0;
+            int totalFailed = 0;
+            string nextCursor = null;
+            List<string> toDelete = new List<string>();
+
+            // Phase 1: List resources under our prefix
+            try
+            {
+                do
+                {
+                    string listUrl = string.Format(
+                        "https://api.cloudinary.com/v1_1/{0}/resources/image/upload?prefix=earthlivesharp/&max_results=500",
+                        Cfg.cloud_name);
+                    if (!string.IsNullOrEmpty(nextCursor))
+                    {
+                        listUrl += "&next_cursor=" + nextCursor;
+                    }
+
+                    HttpWebRequest request = WebRequest.Create(listUrl) as HttpWebRequest;
+                    request.Method = "GET";
+                    request.Timeout = 30000;
+                    request.ReadWriteTimeout = 30000;
+                    request.KeepAlive = false;
+                    System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+                    string svcCredentials = Convert.ToBase64String(System.Text.Encoding.ASCII.GetBytes(Cfg.api_key + ":" + Cfg.api_secret));
+                    request.Headers.Add("Authorization", "Basic " + svcCredentials);
+
+                    using (HttpWebResponse response = request.GetResponse() as HttpWebResponse)
+                    using (StreamReader reader = new StreamReader(response.GetResponseStream()))
+                    {
+                        string json = reader.ReadToEnd();
+
+                        // Extract next_cursor for pagination
+                        nextCursor = null;
+                        int cursorPos = json.IndexOf("\"next_cursor\"");
+                        if (cursorPos >= 0)
+                        {
+                            int cs = json.IndexOf("\"", cursorPos + 14) + 1;
+                            int ce = json.IndexOf("\"", cs);
+                            if (cs > 0 && ce > cs) nextCursor = json.Substring(cs, ce - cs);
+                        }
+
+                        // Walk through each { resource object } in the "resources" array
+                        int pos = 0;
+                        while (pos < json.Length)
+                        {
+                            int objStart = json.IndexOf("{\"", pos);
+                            if (objStart < 0) break;
+                            int objEnd = json.IndexOf("}", objStart + 2);
+                            if (objEnd < 0) break;
+
+                            string obj = json.Substring(objStart, objEnd - objStart + 1);
+
+                            string publicId = ExtractJsonString(obj, "public_id");
+                            string createdAt = ExtractJsonString(obj, "created_at");
+
+                            if (!string.IsNullOrEmpty(publicId) && !string.IsNullOrEmpty(createdAt))
+                            {
+                                DateTime created;
+                                if (DateTime.TryParse(createdAt, out created))
+                                {
+                                    if (created < cutoff)
+                                    {
+                                        toDelete.Add(publicId);
+                                    }
+                                }
+                            }
+
+                            pos = objEnd + 1;
+                        }
+                    }
+                } while (!string.IsNullOrEmpty(nextCursor));
+            }
+            catch (Exception e)
+            {
+                Trace.WriteLine("[upload_mode] list resources error: " + e.Message);
+                return;
+            }
+
+            // Phase 2: Batch delete expired resources
+            if (toDelete.Count > 0)
+            {
+                Trace.WriteLine("[upload_mode] found " + toDelete.Count + " resources to delete (cutoff: " + cutoff.ToString("yyyy-MM-dd HH:mm") + ")");
+                var result = CloudinaryUpload.BatchDeleteResources(toDelete, Cfg.cloud_name, Cfg.api_key, Cfg.api_secret);
+                totalDeleted = result.success;
+                totalFailed = result.failed;
+            }
+
+            Trace.WriteLine(string.Format("[upload_mode] periodic cleanup done: {0} deleted, {1} failed", totalDeleted, totalFailed));
+        }
+
+        private static string ExtractJsonString(string json, string key)
+        {
+            int keyStart = json.IndexOf("\"" + key + "\"");
+            if (keyStart < 0) return null;
+            int colonPos = json.IndexOf(":", keyStart + key.Length + 2);
+            if (colonPos < 0) return null;
+            // Skip whitespace after colon
+            int valStart = colonPos + 1;
+            while (valStart < json.Length && char.IsWhiteSpace(json[valStart])) valStart++;
+            if (valStart >= json.Length || json[valStart] != '"') return null;
+            int valEnd = json.IndexOf("\"", valStart + 1);
+            if (valEnd < 0) return null;
+            return json.Substring(valStart + 1, valEnd - valStart - 1);
         }
         public void ResetState()
         {

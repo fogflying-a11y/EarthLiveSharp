@@ -18,6 +18,7 @@ namespace EarthLiveSharp
         System.Timers.Timer timer1 = new System.Timers.Timer(); // timer to update image
         static int inTimer1 = 0; // lock for timer1
         System.Timers.Timer timer2 = new System.Timers.Timer(); // timer to clean CDN cach
+        System.Timers.Timer timer3 = new System.Timers.Timer(); // timer to cleanup old CDN resources (10h)
         string lastNotifiedStatus = ""; // tracks which status already notified
 
         public mainForm()
@@ -49,6 +50,10 @@ namespace EarthLiveSharp
             timer2.AutoReset = true;
             timer2.Interval = 3600000;
             timer2.Enabled = true;
+            timer3.Elapsed += new System.Timers.ElapsedEventHandler(timer3_Tick);
+            timer3.AutoReset = true;
+            timer3.Interval = 36000000; // 10 hours
+            timer3.Enabled = true;
         }
 
         private void startService_Click(object sender, EventArgs e)
@@ -231,6 +236,11 @@ namespace EarthLiveSharp
         {
             if (Cfg.source_selection != 0 && Cfg.upload_mode == 0)
                 Scrap_wrapper.CleanCDN();
+        }
+
+        private void timer3_Tick(object sender, EventArgs e)
+        {
+            Scrap_wrapper.CleanOldResources();
         }
 
     }

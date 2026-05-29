@@ -164,6 +164,76 @@ namespace EarthLiveSharp
             }
         }
 
+        /// <summary>
+        /// Batch delete resources via Cloudinary Admin API.
+        /// Returns (successCount, failCount).
+        /// 404 treated as success (resource already gone).
+        /// </summary>
+        public static (int success, int failed) BatchDeleteResources(List<string> publicIds, string cloudName, string apiKey, string apiSecret)
+        {
+            if (publicIds == null || publicIds.Count == 0 || string.IsNullOrEmpty(apiKey) || string.IsNullOrEmpty(apiSecret))
+                return (0, 0);
+
+            string deleteUrl = string.Format("https://api.cloudinary.com/v1_1/{0}/resources/image/upload/multiple?action=delete", cloudName);
+            int success = 0;
+            int failed = 0;
+
+            // Process in batches of 50 (Cloudinary limit)
+            for (int batchStart = 0; batchStart < publicIds.Count; batchStart += 50)
+            {
+                int count = Math.Min(50, publicIds.Count - batchStart);
+                List<string> batch = publicIds.GetRange(batchStart, count);
+
+                // Build POST body: public_ids[0]=id0&public_ids[1]=id1&...
+                List<string> pairs = new List<string>();
+                for (int i = 0; i < batch.Count; i++)
+                {
+                    pairs.Add(string.Format("public_ids[{0}]={1}", i, System.Net.WebUtility.UrlEncode(batch[i])));
+                }
+                string bodyData = string.Join("&", pairs);
+                byte[] bodyBytes = Encoding.UTF8.GetBytes(bodyData);
+
+                HttpWebRequest request = WebRequest.Create(deleteUrl) as HttpWebRequest;
+                request.Method = "POST";
+                request.ContentType = "application/x-www-form-urlencoded";
+                request.Timeout = 30000;
+                request.ReadWriteTimeout = 30000;
+                request.KeepAlive = false;
+                request.CachePolicy = new System.Net.Cache.RequestCachePolicy(System.Net.Cache.RequestCacheLevel.NoCacheNoStore);
+                System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+                string svcCredentials = Convert.ToBase64String(Encoding.ASCII.GetBytes(apiKey + ":" + apiSecret));
+                request.Headers.Add("Authorization", "Basic " + svcCredentials);
+                request.ContentLength = bodyBytes.Length;
+
+                try
+                {
+                    using (Stream requestStream = request.GetRequestStream())
+                    {
+                        requestStream.Write(bodyBytes, 0, bodyBytes.Length);
+                    }
+                    using (HttpWebResponse response = request.GetResponse() as HttpWebResponse)
+                    {
+                        if (response.StatusCode == HttpStatusCode.OK)
+                        {
+                            Trace.WriteLine(string.Format("[upload_mode] batch delete success: {0} items", count));
+                            success += count;
+                        }
+                        else
+                        {
+                            Trace.WriteLine(string.Format("[upload_mode] batch delete HTTP {0}", (int)response.StatusCode));
+                            failed += count;
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    Trace.WriteLine("[upload_mode] batch delete error: " + e.Message);
+                    failed += count;
+                }
+            }
+            return (success, failed);
+        }
+
         public static bool UploadImage(string filePath, string publicId, string cloudName, string apiKey, string apiSecret)
         {
             string timestamp = ((long)(DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalSeconds).ToString();
