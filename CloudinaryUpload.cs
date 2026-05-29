@@ -143,6 +143,9 @@ namespace EarthLiveSharp
             request.Method = "DELETE";
             request.Timeout = 10000;
             request.ReadWriteTimeout = 10000;
+            request.KeepAlive = false;
+            request.CachePolicy = new System.Net.Cache.RequestCachePolicy(System.Net.Cache.RequestCacheLevel.NoCacheNoStore);
+            System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
             string svcCredentials = Convert.ToBase64String(Encoding.ASCII.GetBytes(apiKey + ":" + apiSecret));
             request.Headers.Add("Authorization", "Basic " + svcCredentials);
             try
