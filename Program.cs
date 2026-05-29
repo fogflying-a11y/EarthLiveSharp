@@ -80,6 +80,15 @@ namespace EarthLiveSharp
             scraper.ResetState();
         }
 
+        public static string LastUpdateStatus
+        {
+            get
+            {
+                Scraper_himawari8 s = scraper as Scraper_himawari8;
+                return s != null ? s.lastUpdateStatus : "";
+            }
+        }
+
         public static void CleanCDN()
         {
             scraper.CleanCDN();
@@ -97,6 +106,9 @@ namespace EarthLiveSharp
         private string imageID = "";
         private static string last_imageID = "0";
         private string json_url = "https://himawari8-dl.nict.go.jp/himawari8/img/FULL_24h/latest.json";
+        private DateTime lastNictRefreshUtc = DateTime.MinValue;
+        private bool stopUpdates = false;
+        public string lastUpdateStatus = "";
 
         private int GetImageID()
         {
@@ -228,6 +240,11 @@ namespace EarthLiveSharp
             }
         }
 
+        private string GetCurrentPublicId()
+        {
+            return CloudinaryUpload.PublicIdFromImageId(imageID, Cfg.size);
+        }
+
         private void InitFolder()
         {
             if(Directory.Exists(Cfg.image_folder))
@@ -248,28 +265,27 @@ namespace EarthLiveSharp
         public void UpdateImage()
         {
             InitFolder();
-            if (GetImageID() == -1)
-            {
-                return;
-            }
-            if (imageID.Equals(last_imageID))
-            {
-                return;
-            }
 
-            if (Cfg.source_selection == 1 && Cfg.upload_mode == 1)
+            if (stopUpdates) return;
+
+            bool isCdnMode = (Cfg.source_selection == 1 && Cfg.upload_mode == 1);
+            bool hasFullKeys = isCdnMode && Cfg.cloud_name.Length > 0 && Cfg.api_key.Length > 0 && Cfg.api_secret.Length > 0;
+
+            if (isCdnMode && !hasFullKeys)
+            {
+                UpdateImage_CdnOnly();
+            }
+            else if (hasFullKeys)
             {
                 UpdateImage_UploadMode();
             }
             else
             {
-                if (SaveImage() == 0)
-                {
-                    JoinImage();
-                }
+                if (GetImageID() == -1) return;
+                if (imageID.Equals(last_imageID)) return;
+                if (SaveImage() == 0) JoinImage();
             }
             last_imageID = imageID;
-            return;
         }
 
         private void UpdateImage_UploadMode()
@@ -278,51 +294,91 @@ namespace EarthLiveSharp
             string publicId = CloudinaryUpload.PublicIdForSize(size);
             string wallpaperPath = string.Format("{0}\\wallpaper.bmp", Cfg.image_folder);
 
-            // Phase 1: Try downloading from Cloudinary upload CDN
+            bool needsNictRefresh = (DateTime.UtcNow - lastNictRefreshUtc).TotalMinutes >= Cfg.interval;
+
+            if (!needsNictRefresh)
+            {
+                try
+                {
+                    if (CloudinaryUpload.DownloadFromCloudinary(publicId, Cfg.cloud_name, wallpaperPath))
+                    {
+                        Trace.WriteLine("[upload_mode] served from CDN cache: " + publicId);
+                        lastUpdateStatus = "cdn_cache";
+                        return;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Trace.WriteLine("[upload_mode] CDN download failed during interval window: " + ex.Message);
+                }
+                lastUpdateStatus = "all_sources_failed";
+                return;
+            }
+
+            // Time to refresh from NICT
+            if (GetImageID() == -1)
+            {
+                Trace.WriteLine("[upload_mode] NICT GetImageID failed");
+                lastUpdateStatus = "all_sources_failed";
+                return;
+            }
+            if (!imageID.Equals(last_imageID))
+            {
+                int originalSource = Cfg.source_selection;
+                Cfg.source_selection = 0;
+                bool saveOk = (SaveImage() == 0);
+                Cfg.source_selection = originalSource;
+                if (saveOk) JoinImage();
+            }
+
+            // Upload to Cloudinary — fatal, not best-effort
+            try
+            {
+                bool ok = CloudinaryUpload.UploadImage(
+                    wallpaperPath, publicId,
+                    Cfg.cloud_name, Cfg.api_key, Cfg.api_secret);
+                if (ok)
+                {
+                    Trace.WriteLine("[upload_mode] NICT refresh uploaded to Cloudinary: " + publicId);
+                    lastNictRefreshUtc = DateTime.UtcNow;
+                    lastUpdateStatus = "nict_upload_ok";
+                }
+                else
+                {
+                    Trace.WriteLine("[upload_mode] upload to Cloudinary failed — stopping updates");
+                    stopUpdates = true;
+                    lastUpdateStatus = "upload_failed_stop";
+                }
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine("[upload_mode] upload exception — stopping updates: " + ex.Message);
+                stopUpdates = true;
+                lastUpdateStatus = "upload_failed_stop";
+            }
+        }
+
+        private void UpdateImage_CdnOnly()
+        {
+            int size = Cfg.size;
+            string publicId = CloudinaryUpload.PublicIdForSize(size);
+            string wallpaperPath = string.Format("{0}\\wallpaper.bmp", Cfg.image_folder);
+
             try
             {
                 if (CloudinaryUpload.DownloadFromCloudinary(publicId, Cfg.cloud_name, wallpaperPath))
                 {
-                    Trace.WriteLine("[upload_mode] served from Cloudinary cache: " + publicId);
+                    Trace.WriteLine("[cdn_only] served from Cloudinary cache: " + publicId);
+                    lastUpdateStatus = "cdn_cache";
                     return;
                 }
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                Trace.WriteLine("[upload_mode] CDN download failed, falling back to NICT: " + e.Message);
+                Trace.WriteLine("[cdn_only] CDN download failed: " + ex.Message);
             }
-
-            // Phase 2: Download tiles from NICT directly
-            int originalSource = Cfg.source_selection;
-            Cfg.source_selection = 0;
-            if (SaveImage() == 0)
-            {
-                JoinImage();
-
-                // Upload to Cloudinary (best-effort)
-                if (Cfg.api_key.Length > 0 && Cfg.api_secret.Length > 0)
-                {
-                    try
-                    {
-                        bool ok = CloudinaryUpload.UploadImage(
-                            wallpaperPath, publicId,
-                            Cfg.cloud_name, Cfg.api_key, Cfg.api_secret);
-                        if (ok)
-                        {
-                            Trace.WriteLine("[upload_mode] uploaded to Cloudinary: " + publicId);
-                        }
-                        else
-                        {
-                            Trace.WriteLine("[upload_mode] upload to Cloudinary failed (non-fatal)");
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        Trace.WriteLine("[upload_mode] upload exception (non-fatal): " + e.Message);
-                    }
-                }
-            }
-            Cfg.source_selection = originalSource;
+            lastUpdateStatus = "all_sources_failed";
+            Trace.WriteLine("[cdn_only] no wallpaper updated");
         }
         public void CleanCDN()
         {
@@ -377,6 +433,8 @@ namespace EarthLiveSharp
         public void ResetState()
         {
             last_imageID = "0";
+            lastNictRefreshUtc = DateTime.UtcNow;
+            stopUpdates = false;
         }
     }
 

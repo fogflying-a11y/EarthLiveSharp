@@ -14,9 +14,25 @@ namespace EarthLiveSharp
         private static readonly string UPLOAD_BASE = "https://api.cloudinary.com/v1_1";
         private static readonly string FETCH_BASE = "https://res.cloudinary.com";
 
+        /// <summary>
+        /// Legacy fixed public_id — kept for backward compatibility with CDN Only mode.
+        /// UploadMode now uses dynamic timestamp-based IDs via Scraper_himawari8.GetCurrentPublicId().
+        /// </summary>
         public static string PublicIdForSize(int size)
         {
             return "earthlivesharp/latest_" + size + "x" + size;
+        }
+
+        /// <summary>
+        /// Build dynamic public_id from NICT image ID and size.
+        /// imageID format: "2026/05/29/072000"
+        /// Returns: "earthlivesharp/4x4/20260529_0720"
+        /// </summary>
+        public static string PublicIdFromImageId(string imageId, int size)
+        {
+            string[] parts = imageId.Split('/');
+            string timestamp = parts[0] + parts[1] + parts[2] + "_" + parts[3].Substring(0, 4);
+            return string.Format("earthlivesharp/{0}x{0}/{1}", size, timestamp);
         }
 
         public static string BuildCdnUrl(string publicId, string cloudName)
