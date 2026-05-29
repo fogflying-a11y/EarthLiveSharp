@@ -18,6 +18,7 @@ namespace EarthLiveSharp
         System.Timers.Timer timer1 = new System.Timers.Timer(); // timer to update image
         static int inTimer1 = 0; // lock for timer1
         System.Timers.Timer timer2 = new System.Timers.Timer(); // timer to clean CDN cach
+        string lastNotifiedStatus = ""; // tracks which status already notified
 
         public mainForm()
         {
@@ -103,6 +104,7 @@ namespace EarthLiveSharp
                     timer1.Interval = Cfg.interval * 1000 * 60; // set the interval
                 System.Threading.Thread.Sleep(5000); // wait 5 secs for Internet reconnection after system resume.
                 Scrap_wrapper.UpdateImage();
+                ShowBalloonForUpdateStatus();
                 if (Cfg.setwallpaper)
                     Wallpaper.Set(Cfg.image_folder + "\\wallpaper.bmp");
                 Interlocked.Exchange(ref inTimer1, 0);
@@ -195,6 +197,30 @@ namespace EarthLiveSharp
                 stopService.Enabled = false;
                 settingsMenu.Enabled = true;
                 startService.Enabled = true;
+            }
+        }
+
+        private void ShowBalloonForUpdateStatus()
+        {
+            string status = Scrap_wrapper.LastUpdateStatus;
+            if (string.IsNullOrEmpty(status)) return;
+            if (status == lastNotifiedStatus) return; // already notified
+            lastNotifiedStatus = status;
+
+            switch (status)
+            {
+                case "cdn_hit":
+                    // Silent — no balloon for CDN cache hits
+                    break;
+                case "nict_upload_ok":
+                    notifyIcon1.ShowBalloonTip(3000, "EarthLiveSharp", "壁纸已从源站更新并上传CDN", ToolTipIcon.Info);
+                    break;
+                case "all_sources_failed":
+                    notifyIcon1.ShowBalloonTip(3000, "EarthLiveSharp", "所有图像源均不可用，请检查网络", ToolTipIcon.Error);
+                    break;
+                case "upload_failed_stop":
+                    notifyIcon1.ShowBalloonTip(5000, "EarthLiveSharp", "CDN上传失败，程序已停止自动更新", ToolTipIcon.Error);
+                    break;
             }
         }
 
