@@ -3,3 +3,8 @@
 .vs/
 .vscode/
 .*/
+
+# Local files - do not track
+CONVERSATION_RECORD.md
+Program.dll
+EarthLiveSharp.csproj.user
