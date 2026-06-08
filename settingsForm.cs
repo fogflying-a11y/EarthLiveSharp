@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Windows.Forms;
 
 namespace EarthLiveSharp
@@ -26,14 +26,10 @@ namespace EarthLiveSharp
             {
                 Cfg.source_selection = 1;
                 Cfg.cloud_name = cloud_name.Text;
-                Cfg.api_key = api_key.Text;
-                Cfg.api_secret = api_secret.Text;
-                Cfg.upload_mode = checkBox_upload_mode.Checked ? 1 : 0;
             }
             else
             {
                 Cfg.source_selection = 0;
-                Cfg.upload_mode = 0;
             }
             switch (image_size.SelectedIndex)
             {
@@ -67,12 +63,9 @@ namespace EarthLiveSharp
             setwallpaper.Checked = Cfg.setwallpaper;
             interval.Value = Cfg.interval;
             image_zoom.Value = Cfg.zoom;
-            api_key.Text = Cfg.api_key;
-            api_secret.Text = Cfg.api_secret;
             Save_Texture.Checked = Cfg.saveTexture;
             Save_Max_Count.Value = Cfg.saveMaxCount;
             Directory_Display.Text = Cfg.saveDirectory;
-
 
             if (Cfg.source_selection == 1)
             {
@@ -84,8 +77,6 @@ namespace EarthLiveSharp
                 radioButton_Orgin.Checked = true;
                 panel2.Enabled = false;
             }
-
-            checkBox_upload_mode.Checked = (Cfg.upload_mode == 1);
 
             if (Cfg.saveTexture)
             {
@@ -126,12 +117,10 @@ namespace EarthLiveSharp
             if (radioButton_CDN.Checked)
             {
                 panel2.Enabled = true;
-                checkBox_upload_mode.Enabled = true;
             }
             else
             {
                 panel2.Enabled = false;
-                checkBox_upload_mode.Enabled = false;
             }
         }
 
@@ -165,11 +154,6 @@ namespace EarthLiveSharp
             {
                 panel3.Enabled = false;
             }
-        }
-
-        private void checkBox_upload_mode_CheckedChanged(object sender, EventArgs e)
-        {
-            // upload_mode is saved in save_config()
         }
     }
 }

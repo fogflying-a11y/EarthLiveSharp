@@ -126,7 +126,9 @@
     <None Include="Banner.png" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="EarthLive.ico" />
+    <Content Include="EarthLive.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.5">

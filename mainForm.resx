@@ -259,7 +259,7 @@
     <value>90, 18</value>
   </data>
   <data name="linkLabel3.Text" xml:space="preserve">
-    <value>http://himawari8.nict.go.jp/</value>
+    <value>https://himawari.asia/</value>
   </data>
   <data name="button_stop.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>4, 4, 4, 4</value>

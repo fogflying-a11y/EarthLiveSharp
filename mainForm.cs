@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Drawing;
 using System.Windows.Forms;
 using System.Diagnostics;
@@ -17,8 +17,6 @@ namespace EarthLiveSharp
 
         System.Timers.Timer timer1 = new System.Timers.Timer(); // timer to update image
         static int inTimer1 = 0; // lock for timer1
-        System.Timers.Timer timer2 = new System.Timers.Timer(); // timer to clean CDN cach
-        System.Timers.Timer timer3 = new System.Timers.Timer(); // timer to cleanup old CDN resources (10h)
         string lastNotifiedStatus = ""; // tracks which status already notified
 
         public mainForm()
@@ -46,14 +44,6 @@ namespace EarthLiveSharp
             timer1.Elapsed += new System.Timers.ElapsedEventHandler(timer1_Tick);
             timer1.AutoReset = true;
             timer1.Enabled = false;
-            timer2.Elapsed += new System.Timers.ElapsedEventHandler(timer2_Tick);
-            timer2.AutoReset = true;
-            timer2.Interval = 3600000;
-            timer2.Enabled = true;
-            timer3.Elapsed += new System.Timers.ElapsedEventHandler(timer3_Tick);
-            timer3.AutoReset = true;
-            timer3.Interval = 36000000; // 10 hours
-            timer3.Enabled = true;
         }
 
         private void startService_Click(object sender, EventArgs e)
@@ -83,7 +73,7 @@ namespace EarthLiveSharp
 
         private void linkLabel3_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            System.Diagnostics.Process.Start("http://himawari8.nict.go.jp/");
+            System.Diagnostics.Process.Start("https://himawari.asia/");
         }
 
         private void button_settings_Click(object sender, EventArgs e)
@@ -127,7 +117,7 @@ namespace EarthLiveSharp
                     notifyIcon1.ShowBalloonTip(1000, "", "EarthLive# is running", ToolTipIcon.Warning);
                 }
             }
-        }   
+        }
 
         private void notifyIcon1_MouseClick(object sender, MouseEventArgs e)
         {
@@ -214,33 +204,13 @@ namespace EarthLiveSharp
 
             switch (status)
             {
-                case "cdn_hit":
-                    // Silent — no balloon for CDN cache hits
+                case "success":
+                    notifyIcon1.ShowBalloonTip(3000, "EarthLiveSharp", "壁纸已更新", ToolTipIcon.Info);
                     break;
-                case "nict_upload_ok":
-                    notifyIcon1.ShowBalloonTip(3000, "EarthLiveSharp", "壁纸已从源站更新并上传CDN", ToolTipIcon.Info);
-                    break;
-                case "cdn_miss_skip":
-                    // Silent — CDN doesn't have this time slot yet, will retry next cycle
-                    break;
-                case "all_sources_failed":
-                    notifyIcon1.ShowBalloonTip(3000, "EarthLiveSharp", "所有图像源均不可用，请检查网络", ToolTipIcon.Error);
-                    break;
-                case "upload_failed_stop":
-                    notifyIcon1.ShowBalloonTip(5000, "EarthLiveSharp", "CDN上传失败，程序已停止自动更新", ToolTipIcon.Error);
+                case "download_failed":
+                    notifyIcon1.ShowBalloonTip(3000, "EarthLiveSharp", "图像下载失败，请检查网络", ToolTipIcon.Error);
                     break;
             }
-        }
-
-        private void timer2_Tick(object sender, EventArgs e)
-        {
-            if (Cfg.source_selection != 0 && Cfg.upload_mode == 0)
-                Scrap_wrapper.CleanCDN();
-        }
-
-        private void timer3_Tick(object sender, EventArgs e)
-        {
-            Scrap_wrapper.CleanOldResources();
         }
 
     }

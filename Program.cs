@@ -1,7 +1,6 @@
-﻿using System;
+using System;
 using System.Windows.Forms;
 using System.Net;
-using System.Net.Cache;  
 using System.IO;
 using System.Diagnostics;
 using Microsoft.Win32;
@@ -13,12 +12,12 @@ namespace EarthLiveSharp
     {
         [System.Runtime.InteropServices.DllImport("user32.dll")]
         private static extern bool SetProcessDPIAware();
-        
+
         /// <summary>
         /// 应用程序的主入口点。
         /// </summary>
         [STAThread]
-        static void Main(string[] args) 
+        static void Main(string[] args)
         {
             if (System.Environment.OSVersion.Version.Major >= 6) { SetProcessDPIAware(); }
             if (File.Exists(Application.StartupPath + @"\trace.log"))
@@ -48,10 +47,6 @@ namespace EarthLiveSharp
                 }
                 #endif
             }
-            //if (Cfg.language.Equals("en")| Cfg.language.Equals("zh-Hans")| Cfg.language.Equals("zh-Hant"))
-            //{
-            //    System.Threading.Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo(Cfg.language);
-            //}
             Cfg.image_folder = Application.StartupPath + @"\images";
             Cfg.Save();
             Scrap_wrapper.set_scraper();
@@ -88,101 +83,87 @@ namespace EarthLiveSharp
                 return s != null ? s.lastUpdateStatus : "";
             }
         }
-
-        public static void CleanCDN()
-        {
-            scraper.CleanCDN();
-        }
-
-        public static void CleanOldResources()
-        {
-            scraper.CleanOldResources();
-        }
     }
 
     interface IScraper
     {
         void UpdateImage();
-        void CleanCDN();
         void ResetState();
-        void CleanOldResources();
     }
     public class Scraper_himawari8 : IScraper
     {
         private string imageID = "";
         private static string last_imageID = "0";
-        private string json_url = "https://himawari8-dl.nict.go.jp/himawari8/img/FULL_24h/latest.json";
-        private bool stopUpdates = false;
-        private string previousPublicId = ""; // tracks last uploaded public_id for cleanup
         public string lastUpdateStatus = "";
 
-        private int GetImageID()
+        /// <summary>
+        /// Calculate the quantized Himawari target timestamp.
+        /// UTC - 1.5 hours, then floor to the nearest whole hour.
+        /// Returns format: "2026/05/29/130000"
+        /// </summary>
+        private string GetQuantizedImageId()
         {
-            System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
-            HttpWebRequest request = WebRequest.Create(json_url) as HttpWebRequest;
-            try 
-            {
-                HttpWebResponse response = request.GetResponse() as HttpWebResponse;
-                if (response.StatusCode != HttpStatusCode.OK)
-                {
-                    throw new Exception("[himawari8 connection error]");
-                }
-                if (!response.ContentType.Contains("application/json"))
-                {
-                    throw new Exception("[himawari8 no json recieved. your Internet connection is hijacked]");
-                }
-                StreamReader reader = new StreamReader(response.GetResponseStream());
-                string date = reader.ReadToEnd();
-                imageID = date.Substring(9,19).Replace("-", "/").Replace(" ", "/").Replace(":", "");
-                Trace.WriteLine("[himawari8 get latest ImageID] " + imageID);
-                reader.Close();
-            }
-            catch (Exception e)
-            {
-                Trace.WriteLine(e.Message);
-                return -1;
-            }
-            return 0;
+            DateTime utc = DateTime.UtcNow;
+            DateTime delayed = utc.AddMinutes(-90);
+            DateTime quantized = new DateTime(delayed.Year, delayed.Month, delayed.Day, delayed.Hour, 0, 0);
+            return quantized.ToString("yyyy/MM/dd/HH0000");
+        }
+
+        /// <summary>
+        /// Build the origin Himawari tile URL.
+        /// </summary>
+        private string BuildOriginUrl(int ii, int jj)
+        {
+            return string.Format("https://himawari.asia/img/D531106/{0}d/550/{1}_{2}_{3}.png",
+                Cfg.size, imageID, ii, jj);
         }
 
         private int SaveImage()
         {
             System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
-            WebClient client = new WebClient();
-            string image_source = "";
-            if (Cfg.source_selection == 1)
-            {
-               image_source = "https://res.cloudinary.com/" + Cfg.cloud_name + "/image/fetch/https://himawari8-dl.nict.go.jp/himawari8/img/D531106";
-            }
-            else
-            {
-               image_source = "https://himawari8-dl.nict.go.jp/himawari8/img/D531106";
-            }
-            string url = "";
             string image_path = "";
+            bool isCdnMode = (Cfg.source_selection == 1);
+
             try
             {
                 for (int ii = 0; ii < Cfg.size; ii++)
                 {
                     for (int jj = 0; jj < Cfg.size; jj++)
                     {
-                        url = string.Format("{0}/{1}d/550/{2}_{3}_{4}.png", image_source, Cfg.size, imageID, ii, jj);
-                        image_path = string.Format("{0}\\{1}_{2}.png", Cfg.image_folder, ii, jj); // remove the '/' in imageID
-                        client.DownloadFile(url, image_path);
+                        string originUrl = BuildOriginUrl(ii, jj);
+                        image_path = string.Format("{0}\\{1}_{2}.png", Cfg.image_folder, ii, jj);
+
+                        if (isCdnMode)
+                        {
+                            // CDN mode: only Cloudinary fetch, no fallback to NICT
+                            string fetchUrl = CloudinaryUpload.BuildFetchUrl(Cfg.cloud_name, originUrl);
+                            Trace.WriteLine("[cdn] fetch URL: " + fetchUrl);
+
+                            if (!CloudinaryUpload.DownloadFile(fetchUrl, image_path))
+                            {
+                                Trace.WriteLine("[cdn] Cloudinary fetch failed: " + fetchUrl);
+                                return -1;
+                            }
+                        }
+                        else
+                        {
+                            // Origin mode: direct download from NICT
+                            if (!CloudinaryUpload.DownloadFile(originUrl, image_path))
+                            {
+                                Trace.WriteLine("[origin] download failed: " + originUrl);
+                                return -1;
+                            }
+                        }
                     }
                 }
-                Trace.WriteLine("[save image] " + imageID);
+                Trace.WriteLine("[save image] " + imageID + " source=" + (isCdnMode ? "CDN(" + Cfg.cloud_name + ")" : "NICT"));
                 return 0;
             }
             catch (Exception e)
             {
                 Trace.WriteLine(e.Message + " " + imageID);
-                Trace.WriteLine(string.Format("[url]{0} [image_path]{1}", url, image_path));
+                Trace.WriteLine(string.Format("[url]{0} [image_path]{1}", BuildOriginUrl(0, 0), image_path));
                 return -1;
-            }
-            finally
-            {
-                client.Dispose();
             }
         }
 
@@ -246,21 +227,10 @@ namespace EarthLiveSharp
             }
         }
 
-        private string GetCurrentPublicId()
-        {
-            return CloudinaryUpload.PublicIdFromImageId(imageID, Cfg.size);
-        }
-
         private void InitFolder()
         {
             if(Directory.Exists(Cfg.image_folder))
             {
-                // delete all images in the image folder.
-                //string[] files = Directory.GetFiles(image_folder);
-                //foreach (string fn in files)
-                //{
-                //    File.Delete(fn);
-                //}
             }
             else
             {
@@ -272,344 +242,31 @@ namespace EarthLiveSharp
         {
             InitFolder();
 
-            if (stopUpdates) return;
+            // Calculate quantized image ID (does not request NICT)
+            imageID = GetQuantizedImageId();
 
-            bool isCdnMode = (Cfg.source_selection == 1 && Cfg.upload_mode == 1);
-            bool hasFullKeys = isCdnMode && Cfg.cloud_name.Length > 0 && Cfg.api_key.Length > 0 && Cfg.api_secret.Length > 0;
-
-            if (isCdnMode && !hasFullKeys)
+            if (imageID.Equals(last_imageID))
             {
-                UpdateImage_CdnOnly();
+                Trace.WriteLine("[update] same quantized imageID, skipping: " + imageID);
+                lastUpdateStatus = "same_image";
+                return;
             }
-            else if (hasFullKeys)
+
+            if (SaveImage() == 0)
             {
-                UpdateImage_UploadMode();
+                JoinImage();
+                lastUpdateStatus = "success";
             }
             else
             {
-                if (GetImageID() == -1) return;
-                if (imageID.Equals(last_imageID)) return;
-                if (SaveImage() == 0) JoinImage();
+                lastUpdateStatus = "download_failed";
             }
             last_imageID = imageID;
         }
 
-        private void UpdateImage_UploadMode()
-        {
-            string wallpaperPath = string.Format("{0}\\wallpaper.bmp", Cfg.image_folder);
-
-            // Step 1: Get latest image ID from NICT (confirms official time slot)
-            if (GetImageID() == -1)
-            {
-                Trace.WriteLine("[upload_mode] NICT GetImageID failed");
-                lastUpdateStatus = "all_sources_failed";
-                return;
-            }
-
-            // Step 2: Calculate dynamic public_id from confirmed NICT timestamp
-            string dynamicId = GetCurrentPublicId();
-            if (dynamicId == null)
-            {
-                Trace.WriteLine("[upload_mode] invalid dynamic public_id");
-                lastUpdateStatus = "all_sources_failed";
-                return;
-            }
-
-            // Step 3: Probe CDN for this dynamic_id
-            bool cdnHasResource;
-            try
-            {
-                cdnHasResource = CloudinaryUpload.ProbeExists(dynamicId, Cfg.cloud_name);
-            }
-            catch (Exception ex)
-            {
-                Trace.WriteLine("[upload_mode] HEAD probe failed — stopping updates: " + ex.Message);
-                stopUpdates = true;
-                lastUpdateStatus = "upload_failed_stop";
-                return;
-            }
-
-            if (cdnHasResource)
-            {
-                // CDN hit — download directly, skip NICT tiles
-                try
-                {
-                    if (CloudinaryUpload.DownloadFromCloudinary(dynamicId, Cfg.cloud_name, wallpaperPath))
-                    {
-                        Trace.WriteLine("[upload_mode] served from CDN cache: " + dynamicId);
-                        lastUpdateStatus = "cdn_hit";
-                        return;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Trace.WriteLine("[upload_mode] CDN download failed after HEAD hit: " + ex.Message);
-                }
-                lastUpdateStatus = "cdn_get_failed";
-            }
-
-            // CDN miss or GET failure — fetch from NICT source station
-            if (!imageID.Equals(last_imageID))
-            {
-                int originalSource = Cfg.source_selection;
-                Cfg.source_selection = 0;
-                bool saveOk = (SaveImage() == 0);
-                Cfg.source_selection = originalSource;
-                if (saveOk) JoinImage();
-                else
-                {
-                    Trace.WriteLine("[upload_mode] NICT tile download failed");
-                    lastUpdateStatus = "all_sources_failed";
-                    return;
-                }
-            }
-
-            // Upload to Cloudinary
-            try
-            {
-                bool ok = CloudinaryUpload.UploadImage(
-                    wallpaperPath, dynamicId,
-                    Cfg.cloud_name, Cfg.api_key, Cfg.api_secret);
-                if (ok)
-                {
-                    Trace.WriteLine("[upload_mode] NICT refresh uploaded to Cloudinary: " + dynamicId);
-
-                    // Delete previous time slot's resource (skip if same image re-uploaded)
-                    if (!string.IsNullOrEmpty(previousPublicId) && previousPublicId != dynamicId)
-                    {
-                        CloudinaryUpload.DeleteResource(previousPublicId, Cfg.cloud_name, Cfg.api_key, Cfg.api_secret);
-                    }
-                    previousPublicId = dynamicId;
-
-                    lastUpdateStatus = "nict_upload_ok";
-                }
-                else
-                {
-                    Trace.WriteLine("[upload_mode] upload to Cloudinary failed — stopping updates");
-                    stopUpdates = true;
-                    lastUpdateStatus = "upload_failed_stop";
-                }
-            }
-            catch (Exception ex)
-            {
-                Trace.WriteLine("[upload_mode] upload exception — stopping updates: " + ex.Message);
-                stopUpdates = true;
-                lastUpdateStatus = "upload_failed_stop";
-            }
-        }
-
-        private void UpdateImage_CdnOnly()
-        {
-            string wallpaperPath = string.Format("{0}\\wallpaper.bmp", Cfg.image_folder);
-
-            // Step 1: Get latest image ID from NICT (confirms official time slot)
-            if (GetImageID() == -1)
-            {
-                Trace.WriteLine("[cdn_only] NICT GetImageID failed");
-                lastUpdateStatus = "all_sources_failed";
-                return;
-            }
-
-            // Step 2: Calculate dynamic public_id from confirmed NICT timestamp
-            string dynamicId = GetCurrentPublicId();
-            if (dynamicId == null)
-            {
-                Trace.WriteLine("[cdn_only] invalid dynamic public_id");
-                lastUpdateStatus = "all_sources_failed";
-                return;
-            }
-
-            // Step 3: Download from CDN (probe + fetch in one request)
-            try
-            {
-                if (CloudinaryUpload.DownloadFromCloudinary(dynamicId, Cfg.cloud_name, wallpaperPath))
-                {
-                    Trace.WriteLine("[cdn_only] served from CDN cache: " + dynamicId);
-                    lastUpdateStatus = "cdn_hit";
-                    return;
-                }
-            }
-            catch (Exception ex)
-            {
-                Trace.WriteLine("[cdn_only] CDN download failed: " + ex.Message);
-            }
-
-            // CDN has no resource for this time slot yet — skip and wait for next cycle
-            lastUpdateStatus = "cdn_miss_skip";
-        }
-        public void CleanCDN()
-        {
-            Cfg.Load();
-            if (Cfg.api_key.Length == 0) return;
-            if (Cfg.api_secret.Length == 0) return;
-            try
-            {
-                HttpWebRequest request = WebRequest.Create("https://api.cloudinary.com/v1_1/" + Cfg.cloud_name + "/resources/image/fetch?prefix=https://himawari8-dl") as HttpWebRequest;
-                request.Method = "DELETE";
-                request.CachePolicy = new RequestCachePolicy(RequestCacheLevel.NoCacheNoStore);
-                string svcCredentials = Convert.ToBase64String(System.Text.Encoding.ASCII.GetBytes(Cfg.api_key + ":" + Cfg.api_secret));
-                request.Headers.Add("Authorization", "Basic " + svcCredentials);
-                HttpWebResponse response = null;
-                StreamReader reader = null;
-                string result = null;
-                for (int i = 0; i < 3;i++ ) // max 3 request each hour.
-                {
-                    response = request.GetResponse() as HttpWebResponse;
-                    if (response.StatusCode != HttpStatusCode.OK)
-                    {
-                        throw new Exception("[himawari8 clean CND cache connection error]");
-                    }
-                    if (!response.ContentType.Contains("application/json"))
-                    {
-                        throw new Exception("[himawari8 clean CND cache no json recieved. your Internet connection is hijacked]");
-                    }
-                    reader = new StreamReader(response.GetResponseStream());
-                    result = reader.ReadToEnd();
-                    if (result.Contains("\"error\""))
-                    {
-                        throw new Exception("[himawari8 clean CND cache request error]\n" + result);
-                    }
-                    if (result.Contains("\"partial\":false"))
-                    {
-                        Trace.WriteLine("[himawari8 clean CDN cache done]");
-                        break; // end of Clean CDN
-                    }
-                    else
-                    {
-                        Trace.WriteLine("[himawari8 more images to delete]");
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                Trace.WriteLine("[himawari8 error when delete CDN cache]");
-                Trace.WriteLine(e.Message);
-                return;
-            }
-        }
-        /// <summary>
-        /// Periodic cleanup: list resources under earthlivesharp/ prefix,
-        /// batch-delete any older than 10 hours.
-        /// Runs independently of per-upload DeleteResource.
-        /// </summary>
-        public void CleanOldResources()
-        {
-            if (Cfg.api_key.Length == 0) return;
-            if (Cfg.api_secret.Length == 0) return;
-
-            DateTime cutoff = DateTime.UtcNow.AddHours(-10);
-            Trace.WriteLine("[upload_mode] periodic cleanup started, cutoff: " + cutoff.ToString("yyyy-MM-dd HH:mm"));
-
-            int totalDeleted = 0;
-            int totalFailed = 0;
-            string nextCursor = null;
-            List<string> toDelete = new List<string>();
-
-            // Phase 1: List resources under our prefix
-            try
-            {
-                do
-                {
-                    string listUrl = string.Format(
-                        "https://api.cloudinary.com/v1_1/{0}/resources/image/upload?prefix=earthlivesharp/&max_results=500",
-                        Cfg.cloud_name);
-                    if (!string.IsNullOrEmpty(nextCursor))
-                    {
-                        listUrl += "&next_cursor=" + nextCursor;
-                    }
-
-                    HttpWebRequest request = WebRequest.Create(listUrl) as HttpWebRequest;
-                    request.Method = "GET";
-                    request.Timeout = 30000;
-                    request.ReadWriteTimeout = 30000;
-                    request.KeepAlive = false;
-                    System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
-                    string svcCredentials = Convert.ToBase64String(System.Text.Encoding.ASCII.GetBytes(Cfg.api_key + ":" + Cfg.api_secret));
-                    request.Headers.Add("Authorization", "Basic " + svcCredentials);
-
-                    using (HttpWebResponse response = request.GetResponse() as HttpWebResponse)
-                    using (StreamReader reader = new StreamReader(response.GetResponseStream()))
-                    {
-                        string json = reader.ReadToEnd();
-
-                        // Extract next_cursor for pagination
-                        nextCursor = null;
-                        int cursorPos = json.IndexOf("\"next_cursor\"");
-                        if (cursorPos >= 0)
-                        {
-                            int cs = json.IndexOf("\"", cursorPos + 14) + 1;
-                            int ce = json.IndexOf("\"", cs);
-                            if (cs > 0 && ce > cs) nextCursor = json.Substring(cs, ce - cs);
-                        }
-
-                        // Walk through each { resource object } in the "resources" array
-                        int pos = 0;
-                        while (pos < json.Length)
-                        {
-                            int objStart = json.IndexOf("{\"", pos);
-                            if (objStart < 0) break;
-                            int objEnd = json.IndexOf("}", objStart + 2);
-                            if (objEnd < 0) break;
-
-                            string obj = json.Substring(objStart, objEnd - objStart + 1);
-
-                            string publicId = ExtractJsonString(obj, "public_id");
-                            string createdAt = ExtractJsonString(obj, "created_at");
-
-                            if (!string.IsNullOrEmpty(publicId) && !string.IsNullOrEmpty(createdAt))
-                            {
-                                DateTime created;
-                                if (DateTime.TryParse(createdAt, out created))
-                                {
-                                    if (created < cutoff)
-                                    {
-                                        toDelete.Add(publicId);
-                                    }
-                                }
-                            }
-
-                            pos = objEnd + 1;
-                        }
-                    }
-                } while (!string.IsNullOrEmpty(nextCursor));
-            }
-            catch (Exception e)
-            {
-                Trace.WriteLine("[upload_mode] list resources error: " + e.Message);
-                return;
-            }
-
-            // Phase 2: Batch delete expired resources
-            if (toDelete.Count > 0)
-            {
-                Trace.WriteLine("[upload_mode] found " + toDelete.Count + " resources to delete (cutoff: " + cutoff.ToString("yyyy-MM-dd HH:mm") + ")");
-                var result = CloudinaryUpload.BatchDeleteResources(toDelete, Cfg.cloud_name, Cfg.api_key, Cfg.api_secret);
-                totalDeleted = result.success;
-                totalFailed = result.failed;
-            }
-
-            Trace.WriteLine(string.Format("[upload_mode] periodic cleanup done: {0} deleted, {1} failed", totalDeleted, totalFailed));
-        }
-
-        private static string ExtractJsonString(string json, string key)
-        {
-            int keyStart = json.IndexOf("\"" + key + "\"");
-            if (keyStart < 0) return null;
-            int colonPos = json.IndexOf(":", keyStart + key.Length + 2);
-            if (colonPos < 0) return null;
-            // Skip whitespace after colon
-            int valStart = colonPos + 1;
-            while (valStart < json.Length && char.IsWhiteSpace(json[valStart])) valStart++;
-            if (valStart >= json.Length || json[valStart] != '"') return null;
-            int valEnd = json.IndexOf("\"", valStart + 1);
-            if (valEnd < 0) return null;
-            return json.Substring(valStart + 1, valEnd - valStart - 1);
-        }
         public void ResetState()
         {
             last_imageID = "0";
-            previousPublicId = "";
-            stopUpdates = false;
         }
     }
 
@@ -629,8 +286,10 @@ namespace EarthLiveSharp
                 }
                 else
                 {
-                    runKey.SetValue(key, path); // dirty fix: to avoid exception in next line.
-                    runKey.DeleteValue(key);
+                    if (runKey.GetValue(key) != null)
+                    {
+                        runKey.DeleteValue(key);
+                    }
                 }
                 return true;
             }

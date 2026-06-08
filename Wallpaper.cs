@@ -18,6 +18,7 @@ namespace EarthLiveSharp
             string sfiletype = fpath.Substring(fpath.LastIndexOf(".")+1,(fpath.Length-fpath.LastIndexOf(".")-1)).ToLower();
             if (sfiletype == "bmp")
             {
+                 System.Diagnostics.Trace.WriteLine("[wallpaper] setting: " + fpath);
                  SystemParametersInfo(SPI_SETDESKWALLPAPER, 0, fpath, 1); //调用，filename为图片地址，最后一个参数需要为1，0的话在重启后就变回原来的了
             }
             else

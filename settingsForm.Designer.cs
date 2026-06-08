@@ -52,15 +52,10 @@
             this.image_zoom = new System.Windows.Forms.NumericUpDown();
             this.image_size = new System.Windows.Forms.ComboBox();
             this.label5 = new System.Windows.Forms.Label();
-            this.api_key = new System.Windows.Forms.TextBox();
-            this.label7 = new System.Windows.Forms.Label();
-            this.api_secret = new System.Windows.Forms.TextBox();
-            this.label8 = new System.Windows.Forms.Label();
             this.panel2 = new System.Windows.Forms.Panel();
             this.linkLabel2 = new System.Windows.Forms.LinkLabel();
             this.panel3 = new System.Windows.Forms.Panel();
             this.panel4 = new System.Windows.Forms.Panel();
-            this.checkBox_upload_mode = new System.Windows.Forms.CheckBox();
             this.Directory_Display = new System.Windows.Forms.Label();
             this.Selected_Directory = new System.Windows.Forms.Button();
             this.Save_Max_Count = new System.Windows.Forms.NumericUpDown();
@@ -263,39 +258,14 @@
             // 
             resources.ApplyResources(this.label5, "label5");
             this.label5.Name = "label5";
-            // 
-            // api_key
-            // 
-            resources.ApplyResources(this.api_key, "api_key");
-            this.api_key.Name = "api_key";
-            // 
-            // label7
-            // 
-            resources.ApplyResources(this.label7, "label7");
-            this.label7.Name = "label7";
-            // 
-            // api_secret
-            // 
-            resources.ApplyResources(this.api_secret, "api_secret");
-            this.api_secret.Name = "api_secret";
-            // 
-            // label8
-            // 
-            resources.ApplyResources(this.label8, "label8");
-            this.label8.Name = "label8";
-            // 
+            //
             // panel2
             //
             resources.ApplyResources(this.panel2, "panel2");
             this.panel2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.panel2.Controls.Add(this.checkBox_upload_mode);
             this.panel2.Controls.Add(this.linkLabel2);
-            this.panel2.Controls.Add(this.api_secret);
-            this.panel2.Controls.Add(this.label8);
             this.panel2.Controls.Add(this.label4);
-            this.panel2.Controls.Add(this.api_key);
             this.panel2.Controls.Add(this.cloud_name);
-            this.panel2.Controls.Add(this.label7);
             this.panel2.Name = "panel2";
             // 
             // linkLabel2
@@ -348,12 +318,6 @@
             resources.ApplyResources(this.SaveMaxCount, "SaveMaxCount");
             this.SaveMaxCount.Name = "SaveMaxCount";
             // 
-            // checkBox_upload_mode
-            //
-            resources.ApplyResources(this.checkBox_upload_mode, "checkBox_upload_mode");
-            this.checkBox_upload_mode.Name = "checkBox_upload_mode";
-            this.checkBox_upload_mode.UseVisualStyleBackColor = true;
-            this.checkBox_upload_mode.CheckedChanged += new System.EventHandler(this.checkBox_upload_mode_CheckedChanged);
             //
             // settingsForm
             // 
@@ -406,10 +370,6 @@
         private System.Windows.Forms.ComboBox image_size;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.NumericUpDown image_zoom;
-        private System.Windows.Forms.TextBox api_key;
-        private System.Windows.Forms.Label label7;
-        private System.Windows.Forms.TextBox api_secret;
-        private System.Windows.Forms.Label label8;
         private System.Windows.Forms.Panel panel2;
         private System.Windows.Forms.CheckBox checkBox1;
         private System.Windows.Forms.Label label9;
@@ -424,7 +384,6 @@
         private System.Windows.Forms.CheckBox setwallpaper;
         private System.Windows.Forms.Panel panel4;
         private System.Windows.Forms.LinkLabel linkLabel2;
-        private System.Windows.Forms.CheckBox checkBox_upload_mode;
     }
 }
 
