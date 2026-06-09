@@ -96,6 +96,7 @@
             resources.ApplyResources(this.runningLabel, "runningLabel");
             this.runningLabel.ForeColor = System.Drawing.Color.DarkRed;
             this.runningLabel.Name = "runningLabel";
+            this.runningLabel.Click += new System.EventHandler(this.runningLabel_Click);
             // 
             // mainForm
             // 

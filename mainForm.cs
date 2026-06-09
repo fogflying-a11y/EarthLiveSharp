@@ -1,5 +1,6 @@
 using System;
 using System.Drawing;
+using System.IO;
 using System.Windows.Forms;
 using System.Diagnostics;
 using System.Threading;
@@ -100,6 +101,8 @@ namespace EarthLiveSharp
                 System.Threading.Thread.Sleep(5000); // wait 5 secs for Internet reconnection after system resume.
                 Scrap_wrapper.UpdateImage();
                 ShowBalloonForUpdateStatus();
+                if (Scrap_wrapper.LastUpdateStatus == "success")
+                    LoadPreviewImage();
                 if (Cfg.setwallpaper)
                     Wallpaper.Set(Cfg.image_folder + "\\wallpaper.bmp");
                 Interlocked.Exchange(ref inTimer1, 0);
@@ -129,12 +132,59 @@ namespace EarthLiveSharp
 
         private void mainForm_Load(object sender, EventArgs e)
         {
+            // Load existing wallpaper if available
+            LoadPreviewImage();
+
             button_stop.Enabled = false;
             if (Cfg.autostart)
             {
                 button_start.PerformClick();
                 this.WindowState = FormWindowState.Minimized;
                 this.ShowInTaskbar = false;
+            }
+        }
+
+        /// <summary>
+        /// Load wallpaper.bmp from image folder and display as 640x640 preview
+        /// </summary>
+        private void LoadPreviewImage()
+        {
+            try
+            {
+                string wallpaperPath = Cfg.image_folder + "\\wallpaper.bmp";
+                if (File.Exists(wallpaperPath))
+                {
+                    // Use MemoryStream to avoid locking the file
+                    byte[] imageBytes;
+                    using (var fs = new FileStream(wallpaperPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                    {
+                        imageBytes = new byte[fs.Length];
+                        fs.Read(imageBytes, 0, imageBytes.Length);
+                    }
+
+                    using (var ms = new MemoryStream(imageBytes))
+                    {
+                        var original = Image.FromStream(ms);
+                        // Scale to match pictureBox1 size (576x576)
+                        var resized = new Bitmap(pictureBox1.Width, pictureBox1.Height);
+                        using (var g = Graphics.FromImage(resized))
+                        {
+                            g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+                            g.DrawImage(original, 0, 0, pictureBox1.Width, pictureBox1.Height);
+                        }
+                        original.Dispose();
+
+                        // Replace old image
+                        var oldImage = pictureBox1.Image;
+                        pictureBox1.Image = resized;
+                        if (oldImage != null)
+                            oldImage.Dispose();
+                    }
+                }
+            }
+            catch
+            {
+                // Silently ignore errors - preview will keep showing old image or stay empty
             }
         }
 
@@ -213,5 +263,9 @@ namespace EarthLiveSharp
             }
         }
 
+        private void runningLabel_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }
