@@ -154,7 +154,7 @@
     <value>9</value>
   </data>
   <data name="image_zoom.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>4, 4, 4, 4</value>
+    <value>3, 3, 3, 3</value>
   </data>
   <data name="&gt;&gt;cloud_name.Type" xml:space="preserve">
     <value>System.Windows.Forms.TextBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
@@ -175,7 +175,7 @@
     <value>0</value>
   </data>
   <data name="Selected_Directory.Location" type="System.Drawing.Point, System.Drawing">
-    <value>220, 5</value>
+    <value>176, 4</value>
   </data>
   <data name="&gt;&gt;label8.Type" xml:space="preserve">
     <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
@@ -205,13 +205,13 @@
     <value>True</value>
   </data>
   <data name="linkLabel2.Size" type="System.Drawing.Size, System.Drawing">
-    <value>173, 17</value>
+    <value>138, 14</value>
   </data>
   <data name="image_size.Items4" xml:space="preserve">
     <value>8800*8800</value>
   </data>
   <data name="Directory_Display.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>4, 0, 4, 0</value>
+    <value>3, 0, 3, 0</value>
   </data>
   <data name="panel4.TabIndex" type="System.Int32, mscorlib">
     <value>8</value>
@@ -229,10 +229,10 @@
     <value>MiddleCenter</value>
   </data>
   <data name="label10.Size" type="System.Drawing.Size, System.Drawing">
-    <value>54, 17</value>
+    <value>43, 14</value>
   </data>
   <data name="setwallpaper.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>4, 4, 4, 4</value>
+    <value>3, 3, 3, 3</value>
   </data>
   <data name="image_size.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>2, 2, 2, 2</value>
@@ -247,7 +247,7 @@
     <value>System.Windows.Forms.CheckBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="image_size.Size" type="System.Drawing.Size, System.Drawing">
-    <value>152, 25</value>
+    <value>122, 20</value>
   </data>
   <data name="&gt;&gt;label4.Parent" xml:space="preserve">
     <value>panel2</value>
@@ -268,7 +268,7 @@
     <value>panel1</value>
   </data>
   <data name="panel4.Size" type="System.Drawing.Size, System.Drawing">
-    <value>368, 50</value>
+    <value>294, 40</value>
   </data>
   <data name="&gt;&gt;panel1.Type" xml:space="preserve">
     <value>System.Windows.Forms.Panel, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
@@ -283,7 +283,7 @@
     <value>0</value>
   </data>
   <data name="Save_Max_Count.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>4, 4, 4, 4</value>
+    <value>3, 3, 3, 3</value>
   </data>
   <data name="&gt;&gt;button1.Name" xml:space="preserve">
     <value>button1</value>
@@ -295,16 +295,16 @@
     <value>True</value>
   </data>
   <data name="panel4.Location" type="System.Drawing.Point, System.Drawing">
-    <value>14, 41</value>
+    <value>11, 33</value>
   </data>
   <data name="Directory_Display.ImageAlign" type="System.Drawing.ContentAlignment, System.Drawing">
     <value>MiddleRight</value>
   </data>
   <data name="cloud_name.Size" type="System.Drawing.Size, System.Drawing">
-    <value>238, 25</value>
+    <value>190, 20</value>
   </data>
   <data name="panel4.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>4, 4, 4, 4</value>
+    <value>3, 3, 3, 3</value>
   </data>
   <data name="checkBox1.TabIndex" type="System.Int32, mscorlib">
     <value>17</value>
@@ -313,7 +313,7 @@
     <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="api_secret.Size" type="System.Drawing.Size, System.Drawing">
-    <value>238, 25</value>
+    <value>190, 20</value>
   </data>
   <data name="&gt;&gt;label7.Parent" xml:space="preserve">
     <value>panel2</value>
@@ -343,28 +343,28 @@
     <value>panel1</value>
   </data>
   <data name="label2.Size" type="System.Drawing.Size, System.Drawing">
-    <value>159, 17</value>
+    <value>127, 14</value>
   </data>
   <data name="&gt;&gt;label2.ZOrder" xml:space="preserve">
     <value>13</value>
   </data>
   <data name="version_number.Location" type="System.Drawing.Point, System.Drawing">
-    <value>20, 470</value>
+    <value>16, 376</value>
   </data>
   <data name="&gt;&gt;satellite.Name" xml:space="preserve">
     <value>satellite</value>
   </data>
   <data name="label9.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>4, 0, 4, 0</value>
+    <value>3, 0, 3, 0</value>
   </data>
   <data name="$this.AutoScaleDimensions" type="System.Drawing.SizeF, System.Drawing">
-    <value>120, 120</value>
+    <value>96, 96</value>
   </data>
   <data name="label9.TabIndex" type="System.Int32, mscorlib">
     <value>16</value>
   </data>
   <data name="panel3.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>4, 4, 4, 4</value>
+    <value>3, 3, 3, 3</value>
   </data>
   <data name="label8.TextAlign" type="System.Drawing.ContentAlignment, System.Drawing">
     <value>MiddleCenter</value>
@@ -379,7 +379,7 @@
     <value>panel1</value>
   </data>
   <data name="label2.Location" type="System.Drawing.Point, System.Drawing">
-    <value>46, 81</value>
+    <value>37, 65</value>
   </data>
   <data name="Directory_Display.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
     <value>Fill</value>
@@ -388,7 +388,7 @@
     <value>19</value>
   </data>
   <data name="label4.Size" type="System.Drawing.Size, System.Drawing">
-    <value>82, 17</value>
+    <value>66, 14</value>
   </data>
   <data name="&gt;&gt;$this.Type" xml:space="preserve">
     <value>System.Windows.Forms.Form, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
@@ -400,13 +400,13 @@
     <value>version_number</value>
   </data>
   <data name="$this.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>4, 4, 4, 4</value>
+    <value>3, 3, 3, 3</value>
   </data>
   <data name="label9.Location" type="System.Drawing.Point, System.Drawing">
-    <value>26, 164</value>
+    <value>21, 131</value>
   </data>
   <data name="button1.Size" type="System.Drawing.Size, System.Drawing">
-    <value>94, 29</value>
+    <value>75, 23</value>
   </data>
   <data name="&gt;&gt;Selected_Directory.Parent" xml:space="preserve">
     <value>panel3</value>
@@ -415,22 +415,22 @@
     <value>SetWallpaper</value>
   </data>
   <data name="version_number.Size" type="System.Drawing.Size, System.Drawing">
-    <value>33, 17</value>
+    <value>26, 14</value>
   </data>
   <data name="label6.Location" type="System.Drawing.Point, System.Drawing">
-    <value>73, 44</value>
+    <value>58, 35</value>
   </data>
   <data name="&gt;&gt;Save_Max_Count.Name" xml:space="preserve">
     <value>Save_Max_Count</value>
   </data>
   <data name="api_key.Location" type="System.Drawing.Point, System.Drawing">
-    <value>133, 45</value>
+    <value>106, 36</value>
   </data>
   <data name="&gt;&gt;linkLabel1.Type" xml:space="preserve">
     <value>System.Windows.Forms.LinkLabel, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="radioButton_Orgin.Size" type="System.Drawing.Size, System.Drawing">
-    <value>62, 21</value>
+    <value>50, 17</value>
   </data>
   <data name="&gt;&gt;api_key.Parent" xml:space="preserve">
     <value>panel2</value>
@@ -439,7 +439,7 @@
     <value>True</value>
   </data>
   <data name="Save_Max_Count.Location" type="System.Drawing.Point, System.Drawing">
-    <value>120, 7</value>
+    <value>96, 6</value>
   </data>
   <data name="panel3.TabIndex" type="System.Int32, mscorlib">
     <value>20</value>
@@ -466,16 +466,16 @@
     <value>False</value>
   </data>
   <data name="Save_Texture.Location" type="System.Drawing.Point, System.Drawing">
-    <value>262, 109</value>
+    <value>210, 87</value>
   </data>
   <data name="label4.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>4, 0, 4, 0</value>
+    <value>3, 0, 3, 0</value>
   </data>
   <data name="&gt;&gt;label1.Parent" xml:space="preserve">
     <value>panel1</value>
   </data>
   <data name="interval.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>4, 4, 4, 4</value>
+    <value>3, 3, 3, 3</value>
   </data>
   <data name="&gt;&gt;Save_Texture.Parent" xml:space="preserve">
     <value>panel1</value>
@@ -508,7 +508,7 @@
     <value>1</value>
   </data>
   <data name="autostart.Size" type="System.Drawing.Size, System.Drawing">
-    <value>85, 21</value>
+    <value>68, 17</value>
   </data>
   <data name="label10.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -2512,10 +2512,10 @@
     <value>SaveImages</value>
   </data>
   <data name="panel3.Location" type="System.Drawing.Point, System.Drawing">
-    <value>15, 352</value>
+    <value>12, 282</value>
   </data>
   <data name="Directory_Display.Size" type="System.Drawing.Size, System.Drawing">
-    <value>368, 50</value>
+    <value>294, 40</value>
   </data>
   <data name="&gt;&gt;label10.Parent" xml:space="preserve">
     <value>panel1</value>
@@ -2524,7 +2524,7 @@
     <value>True</value>
   </data>
   <data name="linkLabel1.Size" type="System.Drawing.Size, System.Drawing">
-    <value>94, 17</value>
+    <value>75, 14</value>
   </data>
   <data name="label1.Text" xml:space="preserve">
     <value>Image Source</value>
@@ -2542,25 +2542,25 @@
     <value>4</value>
   </data>
   <data name="radioButton_CDN.Location" type="System.Drawing.Point, System.Drawing">
-    <value>212, 162</value>
+    <value>170, 130</value>
   </data>
   <data name="label6.Size" type="System.Drawing.Size, System.Drawing">
-    <value>132, 17</value>
+    <value>106, 14</value>
   </data>
   <data name="panel2.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>4, 4, 4, 4</value>
+    <value>3, 3, 3, 3</value>
   </data>
   <data name="button3.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>4, 4, 4, 4</value>
+    <value>3, 3, 3, 3</value>
   </data>
   <data name="label2.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>4, 0, 4, 0</value>
+    <value>3, 0, 3, 0</value>
   </data>
   <data name="SaveMaxCount.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>4, 0, 4, 0</value>
+    <value>3, 0, 3, 0</value>
   </data>
   <data name="panel2.Size" type="System.Drawing.Size, System.Drawing">
-    <value>393, 132</value>
+    <value>314, 106</value>
   </data>
   <data name="&gt;&gt;api_secret.Name" xml:space="preserve">
     <value>api_secret</value>
@@ -2569,10 +2569,10 @@
     <value>True</value>
   </data>
   <data name="linkLabel2.Location" type="System.Drawing.Point, System.Drawing">
-    <value>158, 107</value>
+    <value>126, 86</value>
   </data>
   <data name="autostart.Location" type="System.Drawing.Point, System.Drawing">
-    <value>17, 109</value>
+    <value>14, 87</value>
   </data>
   <data name="label5.Text" xml:space="preserve">
     <value>Image Quality (pixels)</value>
@@ -2581,31 +2581,31 @@
     <value>6</value>
   </data>
   <data name="interval.Location" type="System.Drawing.Point, System.Drawing">
-    <value>220, 79</value>
+    <value>176, 63</value>
   </data>
   <data name="setwallpaper.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
   </data>
   <data name="button1.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>4, 4, 4, 4</value>
+    <value>3, 3, 3, 3</value>
   </data>
   <data name="checkBox1.Visible" type="System.Boolean, mscorlib">
     <value>False</value>
   </data>
   <data name="label5.Location" type="System.Drawing.Point, System.Drawing">
-    <value>67, 13</value>
+    <value>54, 10</value>
   </data>
   <data name="&gt;&gt;label10.ZOrder" xml:space="preserve">
     <value>2</value>
   </data>
   <data name="version_number.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>4, 0, 4, 0</value>
+    <value>3, 0, 3, 0</value>
   </data>
   <data name="&gt;&gt;SaveMaxCount.Name" xml:space="preserve">
     <value>SaveMaxCount</value>
   </data>
   <data name="image_zoom.Location" type="System.Drawing.Point, System.Drawing">
-    <value>220, 42</value>
+    <value>176, 34</value>
   </data>
   <data name="linkLabel1.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -2620,16 +2620,16 @@
     <value>panel4</value>
   </data>
   <data name="label8.Size" type="System.Drawing.Size, System.Drawing">
-    <value>75, 17</value>
+    <value>60, 14</value>
   </data>
   <data name="label10.TextAlign" type="System.Drawing.ContentAlignment, System.Drawing">
     <value>MiddleCenter</value>
   </data>
   <data name="panel1.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>4, 4, 4, 4</value>
+    <value>3, 3, 3, 3</value>
   </data>
   <data name="label1.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>4, 0, 4, 0</value>
+    <value>3, 0, 3, 0</value>
   </data>
   <data name="radioButton_CDN.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>2, 2, 2, 2</value>
@@ -2647,13 +2647,13 @@
     <value>Update Interval (minutes)</value>
   </data>
   <data name="satellite.Location" type="System.Drawing.Point, System.Drawing">
-    <value>4, 56</value>
+    <value>3, 45</value>
   </data>
   <data name="&gt;&gt;button3.ZOrder" xml:space="preserve">
     <value>6</value>
   </data>
   <data name="button1.Location" type="System.Drawing.Point, System.Drawing">
-    <value>316, 461</value>
+    <value>253, 369</value>
   </data>
   <data name="&gt;&gt;radioButton_Orgin.ZOrder" xml:space="preserve">
     <value>11</value>
@@ -2662,13 +2662,13 @@
     <value>System.Windows.Forms.Panel, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="image_size.Location" type="System.Drawing.Point, System.Drawing">
-    <value>220, 10</value>
+    <value>176, 8</value>
   </data>
   <data name="&gt;&gt;Directory_Display.Type" xml:space="preserve">
     <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="SaveMaxCount.Size" type="System.Drawing.Size, System.Drawing">
-    <value>99, 17</value>
+    <value>79, 14</value>
   </data>
   <data name="label8.Text" xml:space="preserve">
     <value>API Secret</value>
@@ -2680,19 +2680,19 @@
     <value>5</value>
   </data>
   <data name="satellite.Size" type="System.Drawing.Size, System.Drawing">
-    <value>124, 25</value>
+    <value>99, 20</value>
   </data>
   <data name="&gt;&gt;panel4.Parent" xml:space="preserve">
     <value>panel3</value>
   </data>
   <data name="panel2.Location" type="System.Drawing.Point, System.Drawing">
-    <value>15, 214</value>
+    <value>12, 171</value>
   </data>
   <data name="button1.Text" xml:space="preserve">
     <value>Ok</value>
   </data>
   <data name="image_zoom.Size" type="System.Drawing.Size, System.Drawing">
-    <value>152, 25</value>
+    <value>122, 20</value>
   </data>
   <data name="label8.TabIndex" type="System.Int32, mscorlib">
     <value>18</value>
@@ -2701,25 +2701,25 @@
     <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="cloud_name.Location" type="System.Drawing.Point, System.Drawing">
-    <value>133, 15</value>
+    <value>106, 12</value>
   </data>
   <data name="label5.Size" type="System.Drawing.Size, System.Drawing">
-    <value>138, 17</value>
+    <value>110, 14</value>
   </data>
   <data name="&gt;&gt;linkLabel2.Type" xml:space="preserve">
     <value>System.Windows.Forms.LinkLabel, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="linkLabel1.Location" type="System.Drawing.Point, System.Drawing">
-    <value>66, 470</value>
+    <value>53, 376</value>
   </data>
   <data name="label7.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>4, 0, 4, 0</value>
+    <value>3, 0, 3, 0</value>
   </data>
   <data name="panel1.Size" type="System.Drawing.Size, System.Drawing">
-    <value>393, 192</value>
+    <value>314, 154</value>
   </data>
   <data name="checkBox1.Size" type="System.Drawing.Size, System.Drawing">
-    <value>18, 17</value>
+    <value>14, 14</value>
   </data>
   <data name="&gt;&gt;button1.Type" xml:space="preserve">
     <value>System.Windows.Forms.Button, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
@@ -2728,10 +2728,10 @@
     <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="checkBox1.Location" type="System.Drawing.Point, System.Drawing">
-    <value>126, 166</value>
+    <value>101, 133</value>
   </data>
   <data name="label1.Location" type="System.Drawing.Point, System.Drawing">
-    <value>104, 140</value>
+    <value>83, 112</value>
   </data>
   <data name="&gt;&gt;button3.Name" xml:space="preserve">
     <value>button3</value>
@@ -2743,13 +2743,13 @@
     <value>panel3</value>
   </data>
   <data name="label1.Size" type="System.Drawing.Size, System.Drawing">
-    <value>90, 17</value>
+    <value>72, 14</value>
   </data>
   <data name="&gt;&gt;label4.Name" xml:space="preserve">
     <value>label4</value>
   </data>
   <data name="linkLabel1.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>4, 0, 4, 0</value>
+    <value>3, 0, 3, 0</value>
   </data>
   <data name="cloud_name.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>2, 2, 2, 2</value>
@@ -2776,7 +2776,7 @@
     <value>settingsForm</value>
   </data>
   <data name="api_secret.Location" type="System.Drawing.Point, System.Drawing">
-    <value>133, 76</value>
+    <value>106, 61</value>
   </data>
   <data name="&gt;&gt;panel2.ZOrder" xml:space="preserve">
     <value>1</value>
@@ -2788,7 +2788,7 @@
     <value>panel3</value>
   </data>
   <data name="radioButton_CDN.Size" type="System.Drawing.Size, System.Drawing">
-    <value>163, 21</value>
+    <value>130, 17</value>
   </data>
   <data name="panel1.TabIndex" type="System.Int32, mscorlib">
     <value>11</value>
@@ -2806,10 +2806,10 @@
     <value>15</value>
   </data>
   <data name="label7.Size" type="System.Drawing.Size, System.Drawing">
-    <value>62, 17</value>
+    <value>50, 14</value>
   </data>
   <data name="label8.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>4, 0, 4, 0</value>
+    <value>3, 0, 3, 0</value>
   </data>
   <data name="&gt;&gt;api_secret.Type" xml:space="preserve">
     <value>System.Windows.Forms.TextBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
@@ -2818,10 +2818,10 @@
     <value>panel2</value>
   </data>
   <data name="panel3.Size" type="System.Drawing.Size, System.Drawing">
-    <value>393, 103</value>
+    <value>314, 82</value>
   </data>
   <data name="setwallpaper.Size" type="System.Drawing.Size, System.Drawing">
-    <value>108, 21</value>
+    <value>86, 17</value>
   </data>
   <data name="label6.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -2833,16 +2833,16 @@
     <value>panel1</value>
   </data>
   <data name="button3.Location" type="System.Drawing.Point, System.Drawing">
-    <value>214, 461</value>
+    <value>171, 369</value>
   </data>
   <data name="checkBox1.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>4, 4, 4, 4</value>
+    <value>3, 3, 3, 3</value>
   </data>
   <data name="&gt;&gt;SaveMaxCount.Type" xml:space="preserve">
     <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="setwallpaper.Location" type="System.Drawing.Point, System.Drawing">
-    <value>127, 109</value>
+    <value>102, 87</value>
   </data>
   <data name="Directory_Display.TabIndex" type="System.Int32, mscorlib">
     <value>5</value>
@@ -2857,7 +2857,7 @@
     <value>14</value>
   </data>
   <data name="autostart.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>4, 4, 4, 4</value>
+    <value>3, 3, 3, 3</value>
   </data>
   <data name="&gt;&gt;Save_Max_Count.Type" xml:space="preserve">
     <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
@@ -2866,7 +2866,7 @@
     <value>0</value>
   </data>
   <data name="radioButton_Orgin.Location" type="System.Drawing.Point, System.Drawing">
-    <value>212, 138</value>
+    <value>170, 110</value>
   </data>
   <data name="&gt;&gt;cloud_name.ZOrder" xml:space="preserve">
     <value>5</value>
@@ -2881,7 +2881,7 @@
     <value>image_zoom</value>
   </data>
   <data name="Save_Texture.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>4, 4, 4, 4</value>
+    <value>3, 3, 3, 3</value>
   </data>
   <data name="&gt;&gt;Save_Texture.Type" xml:space="preserve">
     <value>System.Windows.Forms.CheckBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
@@ -2899,16 +2899,16 @@
     <value>3</value>
   </data>
   <data name="Save_Max_Count.Size" type="System.Drawing.Size, System.Drawing">
-    <value>79, 25</value>
+    <value>63, 20</value>
   </data>
   <data name="&gt;&gt;label8.ZOrder" xml:space="preserve">
     <value>2</value>
   </data>
   <data name="label8.Location" type="System.Drawing.Point, System.Drawing">
-    <value>54, 79</value>
+    <value>43, 63</value>
   </data>
   <data name="linkLabel2.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>4, 0, 4, 0</value>
+    <value>3, 0, 3, 0</value>
   </data>
   <data name="&gt;&gt;radioButton_CDN.ZOrder" xml:space="preserve">
     <value>10</value>
@@ -2932,7 +2932,7 @@
     <value>Autostart</value>
   </data>
   <data name="label6.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>4, 0, 4, 0</value>
+    <value>3, 0, 3, 0</value>
   </data>
   <data name="&gt;&gt;label1.ZOrder" xml:space="preserve">
     <value>12</value>
@@ -2953,7 +2953,7 @@
     <value>panel2</value>
   </data>
   <data name="label9.Size" type="System.Drawing.Size, System.Drawing">
-    <value>92, 17</value>
+    <value>74, 14</value>
   </data>
   <data name="checkBox1.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -2968,7 +2968,7 @@
     <value>api_key</value>
   </data>
   <data name="api_key.Size" type="System.Drawing.Size, System.Drawing">
-    <value>238, 25</value>
+    <value>190, 20</value>
   </data>
   <data name="&gt;&gt;label4.Type" xml:space="preserve">
     <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
@@ -2983,7 +2983,7 @@
     <value>panel4</value>
   </data>
   <data name="label10.Location" type="System.Drawing.Point, System.Drawing">
-    <value>16, 38</value>
+    <value>13, 30</value>
   </data>
   <data name="&gt;&gt;checkBox1.Name" xml:space="preserve">
     <value>checkBox1</value>
@@ -3001,7 +3001,7 @@
     <value>panel1</value>
   </data>
   <data name="label5.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>4, 0, 4, 0</value>
+    <value>3, 0, 3, 0</value>
   </data>
   <data name="linkLabel2.TabIndex" type="System.Int32, mscorlib">
     <value>20</value>
@@ -3010,10 +3010,10 @@
     <value>MiddleCenter</value>
   </data>
   <data name="SaveMaxCount.Location" type="System.Drawing.Point, System.Drawing">
-    <value>11, 11</value>
+    <value>9, 9</value>
   </data>
   <data name="$this.ClientSize" type="System.Drawing.Size, System.Drawing">
-    <value>421, 499</value>
+    <value>337, 399</value>
   </data>
   <data name="label4.TextAlign" type="System.Drawing.ContentAlignment, System.Drawing">
     <value>MiddleCenter</value>
@@ -3034,7 +3034,7 @@
     <value>label5</value>
   </data>
   <data name="Selected_Directory.Size" type="System.Drawing.Size, System.Drawing">
-    <value>152, 29</value>
+    <value>122, 23</value>
   </data>
   <data name="&gt;&gt;panel3.ZOrder" xml:space="preserve">
     <value>0</value>
@@ -3049,7 +3049,7 @@
     <value>panel2</value>
   </data>
   <data name="Selected_Directory.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>4, 4, 4, 4</value>
+    <value>3, 3, 3, 3</value>
   </data>
   <data name="&gt;&gt;setwallpaper.Name" xml:space="preserve">
     <value>setwallpaper</value>
@@ -3058,7 +3058,7 @@
     <value>Satellite</value>
   </data>
   <data name="Save_Texture.Size" type="System.Drawing.Size, System.Drawing">
-    <value>102, 21</value>
+    <value>82, 17</value>
   </data>
   <data name="&gt;&gt;label9.Parent" xml:space="preserve">
     <value>panel1</value>
@@ -3070,10 +3070,10 @@
     <value>Himawari8</value>
   </data>
   <data name="label4.Location" type="System.Drawing.Point, System.Drawing">
-    <value>47, 18</value>
+    <value>38, 14</value>
   </data>
   <data name="panel1.Location" type="System.Drawing.Point, System.Drawing">
-    <value>15, 15</value>
+    <value>12, 12</value>
   </data>
   <data name="Selected_Directory.TabIndex" type="System.Int32, mscorlib">
     <value>7</value>
@@ -3088,7 +3088,7 @@
     <value>System.Windows.Forms.TextBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="label10.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>4, 0, 4, 0</value>
+    <value>3, 0, 3, 0</value>
   </data>
   <data name="button3.TabIndex" type="System.Int32, mscorlib">
     <value>6</value>
@@ -3097,7 +3097,7 @@
     <value>4</value>
   </data>
   <data name="label7.Location" type="System.Drawing.Point, System.Drawing">
-    <value>67, 48</value>
+    <value>54, 38</value>
   </data>
   <data name="&gt;&gt;radioButton_CDN.Parent" xml:space="preserve">
     <value>panel1</value>
@@ -3109,7 +3109,7 @@
     <value>0</value>
   </data>
   <data name="button3.Size" type="System.Drawing.Size, System.Drawing">
-    <value>94, 29</value>
+    <value>75, 23</value>
   </data>
   <data name="&gt;&gt;label6.Name" xml:space="preserve">
     <value>label6</value>
@@ -3118,7 +3118,7 @@
     <value>15</value>
   </data>
   <data name="interval.Size" type="System.Drawing.Size, System.Drawing">
-    <value>152, 25</value>
+    <value>122, 20</value>
   </data>
   <data name="&gt;&gt;label9.Name" xml:space="preserve">
     <value>label9</value>
@@ -3127,7 +3127,7 @@
     <value>panel1</value>
   </data>
   <data name="satellite.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>4, 4, 4, 4</value>
+    <value>3, 3, 3, 3</value>
   </data>
   <metadata name="$this.Localizable" type="System.Boolean, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
     <value>True</value>

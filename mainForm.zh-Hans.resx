@@ -119,13 +119,13 @@
   </resheader>
   <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
   <data name="label1.Location" type="System.Drawing.Point, System.Drawing">
-    <value>-2, 461</value>
+    <value>-1, 392</value>
   </data>
   <data name="label1.Size" type="System.Drawing.Size, System.Drawing">
     <value>172, 25</value>
   </data>
   <data name="label2.Location" type="System.Drawing.Point, System.Drawing">
-    <value>182, 441</value>
+    <value>144, 375</value>
   </data>
   <data name="label2.Size" type="System.Drawing.Size, System.Drawing">
     <value>164, 15</value>
@@ -134,40 +134,40 @@
     <value>图片来自向日葵-8号气象卫星:</value>
   </data>
   <data name="linkLabel3.Location" type="System.Drawing.Point, System.Drawing">
-    <value>341, 441</value>
+    <value>303, 374</value>
   </data>
   <data name="linkLabel3.Size" type="System.Drawing.Size, System.Drawing">
     <value>134, 19</value>
   </data>
   <data name="pictureBox1.Location" type="System.Drawing.Point, System.Drawing">
-    <value>5, 1</value>
+    <value>4, 1</value>
   </data>
   <data name="pictureBox1.Size" type="System.Drawing.Size, System.Drawing">
-    <value>470, 456</value>
+    <value>433, 390</value>
   </data>
   <data name="button_start.Location" type="System.Drawing.Point, System.Drawing">
-    <value>308, 465</value>
+    <value>180, 400</value>
   </data>
   <data name="button_start.Size" type="System.Drawing.Size, System.Drawing">
-    <value>65, 24</value>
+    <value>65, 31</value>
   </data>
   <data name="button_start.Text" xml:space="preserve">
     <value>开始</value>
   </data>
   <data name="button_stop.Location" type="System.Drawing.Point, System.Drawing">
-    <value>383, 465</value>
+    <value>263, 400</value>
   </data>
   <data name="button_stop.Size" type="System.Drawing.Size, System.Drawing">
-    <value>43, 24</value>
+    <value>65, 31</value>
   </data>
   <data name="button_stop.Text" xml:space="preserve">
     <value>停止</value>
   </data>
   <data name="button_settings.Location" type="System.Drawing.Point, System.Drawing">
-    <value>431, 465</value>
+    <value>345, 400</value>
   </data>
   <data name="button_settings.Size" type="System.Drawing.Size, System.Drawing">
-    <value>43, 24</value>
+    <value>65, 31</value>
   </data>
   <data name="button_settings.Text" xml:space="preserve">
     <value>设置</value>
@@ -2135,16 +2135,13 @@
 </value>
   </data>
   <data name="runningLabel.Location" type="System.Drawing.Point, System.Drawing">
-    <value>166, 461</value>
+    <value>12, 417</value>
   </data>
   <data name="runningLabel.Size" type="System.Drawing.Size, System.Drawing">
     <value>142, 25</value>
   </data>
-  <data name="$this.AutoScaleDimensions" type="System.Drawing.SizeF, System.Drawing">
-    <value>96, 96</value>
-  </data>
   <data name="$this.ClientSize" type="System.Drawing.Size, System.Drawing">
-    <value>482, 503</value>
+    <value>435, 443</value>
   </data>
   <data name="$this.Icon" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
