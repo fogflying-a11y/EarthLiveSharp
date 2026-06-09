@@ -1,7 +1,8 @@
 # EarthLiveSharp - CDN Fetch Edition
 
 🌍 **实时地球卫星壁纸** — 从 [Himawari-8](https://himawari.asia/) 气象卫星获取实时地球图像，通过 Cloudinary CDN 代理加速，设置为桌面壁纸
-[<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/8ded6af7-8ac0-4f33-bf59-8a7e2808a0a4" />](https://github.com/fogflying-a11y/EarthLiveSharp)
+<img width="1918" height="1080" alt="image" src="https://github.com/user-attachments/assets/225974e0-ec73-424c-a7b6-86ff956db1eb" />
+
 
 
 > 本项目是 [bitdust/EarthLiveSharp](https://github.com/bitdust/EarthLiveSharp) 的简化重构分支，专注于 **CDN fetch 代理模式** 和 **极简架构**
