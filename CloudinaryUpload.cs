@@ -13,7 +13,7 @@ namespace EarthLiveSharp
         /// </summary>
         public static string BuildFetchUrl(string cloudName, string originUrl)
         {
-            string encoded = System.Net.WebUtility.UrlEncode(originUrl);
+            string encoded = originUrl.Replace(":", "%3A");
             return string.Format("https://res.cloudinary.com/{0}/image/fetch/f_auto,q_auto/{1}", cloudName, encoded);
         }
 

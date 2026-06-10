@@ -106,7 +106,7 @@ namespace EarthLiveSharp
             DateTime utc = DateTime.UtcNow;
             DateTime delayed = utc.AddMinutes(-90);
             DateTime quantized = new DateTime(delayed.Year, delayed.Month, delayed.Day, delayed.Hour, 0, 0);
-            return quantized.ToString("yyyy/MM/dd/HH0000");
+            return quantized.ToString("yyyy\\/MM\\/dd\\/HH0000");
         }
 
         /// <summary>
