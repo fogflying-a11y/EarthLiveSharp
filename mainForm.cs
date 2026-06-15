@@ -208,6 +208,7 @@ namespace EarthLiveSharp
         //All logic pertaining to starting the service
         private void startLogic()
         {
+            Scrap_wrapper.set_scraper(); // re-create scraper based on current config
             Scrap_wrapper.ResetState();
             if (!serviceRunning)
             {

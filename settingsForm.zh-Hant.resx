@@ -112,14 +112,14 @@
     <value>2.0</value>
   </resheader>
   <resheader name="reader">
-    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <resheader name="writer">
-    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <assembly alias="System.Drawing" name="System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
   <data name="linkLabel1.Size" type="System.Drawing.Size, System.Drawing">
-    <value>58, 14</value>
+    <value>55, 15</value>
   </data>
   <data name="linkLabel1.Text" xml:space="preserve">
     <value>檢查更新</value>
@@ -127,65 +127,89 @@
   <data name="button3.Text" xml:space="preserve">
     <value>應用</value>
   </data>
+  <data name="version_number.Size" type="System.Drawing.Size, System.Drawing">
+    <value>28, 15</value>
+  </data>
   <data name="button1.Text" xml:space="preserve">
     <value>OK</value>
   </data>
   <data name="autostart.Size" type="System.Drawing.Size, System.Drawing">
-    <value>88, 17</value>
+    <value>86, 19</value>
   </data>
   <data name="autostart.Text" xml:space="preserve">
     <value>開機自啟動</value>
+  </data>
+  <data name="interval.Size" type="System.Drawing.Size, System.Drawing">
+    <value>122, 21</value>
   </data>
   <data name="label2.Location" type="System.Drawing.Point, System.Drawing">
     <value>73, 66</value>
   </data>
   <data name="label2.Size" type="System.Drawing.Size, System.Drawing">
-    <value>94, 14</value>
+    <value>90, 15</value>
   </data>
   <data name="label2.Text" xml:space="preserve">
     <value>更新間隔 (分鐘)</value>
   </data>
   <data name="label1.Size" type="System.Drawing.Size, System.Drawing">
-    <value>45, 14</value>
+    <value>43, 15</value>
   </data>
   <data name="label1.Text" xml:space="preserve">
     <value>圖像源</value>
   </data>
   <data name="radioButton_Orgin.Size" type="System.Drawing.Size, System.Drawing">
-    <value>87, 17</value>
+    <value>85, 19</value>
   </data>
   <data name="radioButton_Orgin.Text" xml:space="preserve">
     <value>原始服务器</value>
   </data>
   <data name="radioButton_CDN.Size" type="System.Drawing.Size, System.Drawing">
-    <value>115, 17</value>
+    <value>114, 19</value>
   </data>
   <data name="radioButton_CDN.Text" xml:space="preserve">
     <value>CDN (強烈推薦!)</value>
   </data>
+  <data name="radioButton_Bing.Size" type="System.Drawing.Size, System.Drawing">
+    <value>71, 19</value>
+  </data>
+  <data name="radioButton_Bing.Text" xml:space="preserve">
+    <value>Bing壁紙</value>
+  </data>
   <data name="label4.Location" type="System.Drawing.Point, System.Drawing">
     <value>36, 14</value>
   </data>
+  <data name="label4.Size" type="System.Drawing.Size, System.Drawing">
+    <value>67, 15</value>
+  </data>
+  <data name="cloud_name.Size" type="System.Drawing.Size, System.Drawing">
+    <value>190, 21</value>
+  </data>
   <data name="setwallpaper.Size" type="System.Drawing.Size, System.Drawing">
-    <value>101, 17</value>
+    <value>98, 19</value>
   </data>
   <data name="setwallpaper.Text" xml:space="preserve">
     <value>設置桌面壁紙</value>
   </data>
+  <data name="satellite.Size" type="System.Drawing.Size, System.Drawing">
+    <value>73, 23</value>
+  </data>
   <data name="label10.Size" type="System.Drawing.Size, System.Drawing">
-    <value>58, 14</value>
+    <value>55, 15</value>
   </data>
   <data name="label10.Text" xml:space="preserve">
     <value>衛星選擇</value>
   </data>
   <data name="Save_Texture.Size" type="System.Drawing.Size, System.Drawing">
-    <value>75, 17</value>
+    <value>74, 19</value>
   </data>
   <data name="Save_Texture.Text" xml:space="preserve">
     <value>保存圖片</value>
   </data>
+  <data name="checkBox1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>15, 14</value>
+  </data>
   <data name="label9.Size" type="System.Drawing.Size, System.Drawing">
-    <value>83, 14</value>
+    <value>79, 15</value>
   </data>
   <data name="label9.Text" xml:space="preserve">
     <value>設置鎖屏壁紙</value>
@@ -194,31 +218,43 @@
     <value>90, 35</value>
   </data>
   <data name="label6.Size" type="System.Drawing.Size, System.Drawing">
-    <value>79, 14</value>
+    <value>76, 15</value>
   </data>
   <data name="label6.Text" xml:space="preserve">
     <value>圖像縮放 (%)</value>
+  </data>
+  <data name="image_zoom.Size" type="System.Drawing.Size, System.Drawing">
+    <value>122, 21</value>
+  </data>
+  <data name="image_size.Size" type="System.Drawing.Size, System.Drawing">
+    <value>122, 23</value>
   </data>
   <data name="label5.Location" type="System.Drawing.Point, System.Drawing">
     <value>62, 10</value>
   </data>
   <data name="label5.Size" type="System.Drawing.Size, System.Drawing">
-    <value>107, 14</value>
+    <value>102, 15</value>
   </data>
   <data name="label5.Text" xml:space="preserve">
     <value>圖像分辨率 (像素)</value>
   </data>
-  <data name="label8.Location" type="System.Drawing.Point, System.Drawing">
-    <value>42, 63</value>
+  <data name="panel1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>314, 182</value>
   </data>
   <data name="linkLabel2.Location" type="System.Drawing.Point, System.Drawing">
     <value>182, 82</value>
   </data>
   <data name="linkLabel2.Size" type="System.Drawing.Size, System.Drawing">
-    <value>122, 14</value>
+    <value>118, 15</value>
   </data>
   <data name="linkLabel2.Text" xml:space="preserve">
     <value>(如何獲得CDN帳號?)</value>
+  </data>
+  <data name="panel2.Location" type="System.Drawing.Point, System.Drawing">
+    <value>12, 200</value>
+  </data>
+  <data name="panel2.Size" type="System.Drawing.Size, System.Drawing">
+    <value>314, 102</value>
   </data>
   <data name="Directory_Display.Text" xml:space="preserve">
     <value>沒有選擇保存位置</value>
@@ -226,11 +262,20 @@
   <data name="Selected_Directory.Text" xml:space="preserve">
     <value>選擇保存位置</value>
   </data>
+  <data name="Save_Max_Count.Size" type="System.Drawing.Size, System.Drawing">
+    <value>63, 21</value>
+  </data>
   <data name="SaveMaxCount.Size" type="System.Drawing.Size, System.Drawing">
-    <value>70, 14</value>
+    <value>67, 15</value>
   </data>
   <data name="SaveMaxCount.Text" xml:space="preserve">
     <value>最大圖片數</value>
+  </data>
+  <data name="panel3.Location" type="System.Drawing.Point, System.Drawing">
+    <value>12, 308</value>
+  </data>
+  <data name="panel3.Size" type="System.Drawing.Size, System.Drawing">
+    <value>314, 56</value>
   </data>
   <data name="$this.Icon" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
@@ -2196,8 +2241,5 @@
   </data>
   <data name="$this.Text" xml:space="preserve">
     <value>設定</value>
-  </data>
-  <data name="checkBox_upload_mode.Text" xml:space="preserve">
-    <value>上傳模式 (推薦)</value>
   </data>
 </root>

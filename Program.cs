@@ -62,8 +62,10 @@ namespace EarthLiveSharp
         private static IScraper scraper;
         public static void set_scraper()
         {
-            scraper = new Scraper_himawari8();
-            return;
+            if (Cfg.source_selection == 2)
+                scraper = new Scraper_bing();
+            else
+                scraper = new Scraper_himawari8();
         }
         public static void UpdateImage()
         {
@@ -77,11 +79,7 @@ namespace EarthLiveSharp
 
         public static string LastUpdateStatus
         {
-            get
-            {
-                Scraper_himawari8 s = scraper as Scraper_himawari8;
-                return s != null ? s.lastUpdateStatus : "";
-            }
+            get { return scraper.LastUpdateStatus; }
         }
     }
 
@@ -89,12 +87,14 @@ namespace EarthLiveSharp
     {
         void UpdateImage();
         void ResetState();
+        string LastUpdateStatus { get; }
     }
     public class Scraper_himawari8 : IScraper
     {
         private string imageID = "";
         private static string last_imageID = "0";
         public string lastUpdateStatus = "";
+        public string LastUpdateStatus { get { return lastUpdateStatus; } }
 
         /// <summary>
         /// Calculate the quantized Himawari target timestamp.

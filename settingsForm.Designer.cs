@@ -39,6 +39,7 @@
             this.label1 = new System.Windows.Forms.Label();
             this.radioButton_Orgin = new System.Windows.Forms.RadioButton();
             this.radioButton_CDN = new System.Windows.Forms.RadioButton();
+            this.radioButton_Bing = new System.Windows.Forms.RadioButton();
             this.label4 = new System.Windows.Forms.Label();
             this.cloud_name = new System.Windows.Forms.TextBox();
             this.panel1 = new System.Windows.Forms.Panel();
@@ -147,6 +148,14 @@
             this.radioButton_CDN.TabStop = true;
             this.radioButton_CDN.UseVisualStyleBackColor = true;
             // 
+            // radioButton_Bing
+            // 
+            resources.ApplyResources(this.radioButton_Bing, "radioButton_Bing");
+            this.radioButton_Bing.Name = "radioButton_Bing";
+            this.radioButton_Bing.TabStop = true;
+            this.radioButton_Bing.UseVisualStyleBackColor = true;
+            this.radioButton_Bing.CheckedChanged += new System.EventHandler(this.radioButton_Orgin_CheckedChanged);
+            // 
             // label4
             // 
             resources.ApplyResources(this.label4, "label4");
@@ -173,6 +182,7 @@
             this.panel1.Controls.Add(this.label5);
             this.panel1.Controls.Add(this.radioButton_CDN);
             this.panel1.Controls.Add(this.radioButton_Orgin);
+            this.panel1.Controls.Add(this.radioButton_Bing);
             this.panel1.Controls.Add(this.label1);
             this.panel1.Controls.Add(this.label2);
             this.panel1.Controls.Add(this.interval);
@@ -258,9 +268,9 @@
             // 
             resources.ApplyResources(this.label5, "label5");
             this.label5.Name = "label5";
-            //
+            // 
             // panel2
-            //
+            // 
             resources.ApplyResources(this.panel2, "panel2");
             this.panel2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.panel2.Controls.Add(this.linkLabel2);
@@ -318,7 +328,6 @@
             resources.ApplyResources(this.SaveMaxCount, "SaveMaxCount");
             this.SaveMaxCount.Name = "SaveMaxCount";
             // 
-            //
             // settingsForm
             // 
             resources.ApplyResources(this, "$this");
@@ -363,6 +372,7 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.RadioButton radioButton_Orgin;
         private System.Windows.Forms.RadioButton radioButton_CDN;
+        private System.Windows.Forms.RadioButton radioButton_Bing;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.TextBox cloud_name;
         private System.Windows.Forms.Panel panel1;

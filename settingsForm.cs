@@ -27,6 +27,10 @@ namespace EarthLiveSharp
                 Cfg.source_selection = 1;
                 Cfg.cloud_name = cloud_name.Text;
             }
+            else if (radioButton_Bing.Checked)
+            {
+                Cfg.source_selection = 2;
+            }
             else
             {
                 Cfg.source_selection = 0;
@@ -67,15 +71,11 @@ namespace EarthLiveSharp
             Save_Max_Count.Value = Cfg.saveMaxCount;
             Directory_Display.Text = Cfg.saveDirectory;
 
-            if (Cfg.source_selection == 1)
+            switch (Cfg.source_selection)
             {
-                radioButton_CDN.Checked = true;
-                panel2.Enabled = true;
-            }
-            else
-            {
-                radioButton_Orgin.Checked = true;
-                panel2.Enabled = false;
+                case 1: radioButton_CDN.Checked = true; break;
+                case 2: radioButton_Bing.Checked = true; break;
+                default: radioButton_Orgin.Checked = true; break;
             }
 
             if (Cfg.saveTexture)
@@ -87,11 +87,19 @@ namespace EarthLiveSharp
                 panel3.Enabled = false;
             }
 
+            bool isBing = (Cfg.source_selection == 2);
+            satellite.Enabled = !isBing;
+            image_size.Enabled = !isBing && (Cfg.satellite == "Himawari8");
+            label5.Enabled = !isBing;
+            label6.Enabled = !isBing;
+            image_zoom.Enabled = !isBing;
+            panel2.Enabled = (Cfg.source_selection == 1);
+
             switch (Cfg.satellite)
             {
-                case "Himawari8": satellite.SelectedIndex = 0; image_size.Enabled = true; break;
+                case "Himawari8": satellite.SelectedIndex = 0; break;
                 case "FengYun4": satellite.SelectedIndex = 1; image_size.Enabled = false; break;
-                default: satellite.SelectedIndex = 0; image_size.Enabled = true; break;
+                default: satellite.SelectedIndex = 0; break;
             }
 
             switch (Cfg.size)
@@ -117,20 +125,44 @@ namespace EarthLiveSharp
             if (radioButton_CDN.Checked)
             {
                 panel2.Enabled = true;
+                satellite.Enabled = true;
+                label5.Enabled = true;
+                label6.Enabled = true;
+                image_zoom.Enabled = true;
+                image_size.Enabled = (satellite.SelectedIndex == 0);
+            }
+            else if (radioButton_Bing.Checked)
+            {
+                panel2.Enabled = false;
+                satellite.Enabled = false;
+                label5.Enabled = false;
+                label6.Enabled = false;
+                image_zoom.Enabled = false;
+                image_size.Enabled = false;
             }
             else
             {
                 panel2.Enabled = false;
+                satellite.Enabled = true;
+                label5.Enabled = true;
+                label6.Enabled = true;
+                image_zoom.Enabled = true;
+                image_size.Enabled = (satellite.SelectedIndex == 0);
             }
         }
 
         private void satellite_SelectedIndexChanged(object sender, EventArgs e)
         {
+            if (radioButton_Bing.Checked) return;
+
             switch (satellite.Text)
             {
-                case "Himawari8": image_size.Enabled = true; break;
-                case "FengYun4": image_size.Enabled = false; break;
-                default: image_size.Enabled = true; break;
+                case "Himawari8":
+                    image_size.Enabled = true;
+                    break;
+                case "FengYun4":
+                    image_size.Enabled = false;
+                    break;
             }
         }
 
