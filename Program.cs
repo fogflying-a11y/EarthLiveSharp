@@ -97,16 +97,42 @@ namespace EarthLiveSharp
         public string LastUpdateStatus { get { return lastUpdateStatus; } }
 
         /// <summary>
-        /// Calculate the quantized Himawari target timestamp.
-        /// UTC - 1.5 hours, then floor to the nearest whole hour.
-        /// Returns format: "2026/05/29/130000"
+        /// Fetch the latest image timestamp from himawari.asia API.
+        /// Returns format: "2026/06/26/062000"
+        /// Returns null on failure.
         /// </summary>
-        private string GetQuantizedImageId()
+        private string GetLatestImageId()
         {
-            DateTime utc = DateTime.UtcNow;
-            DateTime delayed = utc.AddMinutes(-90);
-            DateTime quantized = new DateTime(delayed.Year, delayed.Month, delayed.Day, delayed.Hour, 0, 0);
-            return quantized.ToString("yyyy\\/MM\\/dd\\/HH0000");
+            try
+            {
+                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+                var request = WebRequest.Create("https://himawari.asia/img/D531106/latest.json") as HttpWebRequest;
+                request.Timeout = 10000;
+                request.ReadWriteTimeout = 10000;
+
+                using (var response = request.GetResponse() as HttpWebResponse)
+                {
+                    if (response.StatusCode != HttpStatusCode.OK) return null;
+                    using (var reader = new StreamReader(response.GetResponseStream()))
+                    {
+                        string json = reader.ReadToEnd();
+                        // Parse: {"date":"2026-06-26 06:20:00","file":"..."}
+                        int dateStart = json.IndexOf("\"date\":\"") + 8;
+                        int dateEnd = json.IndexOf("\"", dateStart);
+                        if (dateStart < 8 || dateEnd < 0) return null;
+                        string dateStr = json.Substring(dateStart, dateEnd - dateStart);
+                        // "2026-06-26 06:20:00" → "2026/06/26/062000"
+                        return dateStr.Replace("-", "/")
+                                      .Replace(":", "")
+                                      .Replace(" ", "/");
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Trace.WriteLine("[api] failed to fetch latest: " + e.Message);
+                return null;
+            }
         }
 
         /// <summary>
@@ -242,12 +268,19 @@ namespace EarthLiveSharp
         {
             InitFolder();
 
-            // Calculate quantized image ID (does not request NICT)
-            imageID = GetQuantizedImageId();
+            // Fetch latest timestamp from himawari.asia API
+            imageID = GetLatestImageId();
+
+            if (imageID == null)
+            {
+                Trace.WriteLine("[update] API request failed, keeping current wallpaper");
+                lastUpdateStatus = "api_failed";
+                return;
+            }
 
             if (imageID.Equals(last_imageID))
             {
-                Trace.WriteLine("[update] same quantized imageID, skipping: " + imageID);
+                Trace.WriteLine("[update] same imageID, skipping: " + imageID);
                 lastUpdateStatus = "same_image";
                 return;
             }

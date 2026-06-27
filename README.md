@@ -39,16 +39,15 @@
 CDN URL: https://res.cloudinary.com/{cloud_name}/image/fetch/f_auto,q_auto/{original_url}
 ```
 
-### ⏱️ 本地时间戳量化（零网络请求）
+### ⏱️ API 时间戳获取（精确到 10 分钟）
 
-**原项目**：每次更新需要请求 NICT `latest.json`（~3KB）获取最新时间戳
+**原项目**：请求 NICT 官方源 `latest.json` 获取最新时间戳
 
-**本项目**：本地计算时间戳，**无需任何网络请求**：
-- UTC 时间 - 90 分钟（卫星数据发布延迟）
-- 向下取整到整小时
-- 格式：`yyyy/MM/dd/HH0000`
-
-**效果：** 每个更新周期节省 ~3KB 网络请求
+**本项目**：请求 `himawari.asia` 镜像站的 `latest.json`（~3KB）获取最新时间戳：
+- 源站发布即可获取，无需本地估算延迟
+- 精确到 10 分钟帧级别（Himawari-8 实际更新频率）
+- 格式：`yyyy/MM/dd/HHMM00`
+- API 失败时保留当前壁纸，不盲目下载
 
 ### 🗑️ 删除了复杂的多设备协作机制
 
@@ -58,7 +57,6 @@ CDN URL: https://res.cloudinary.com/{cloud_name}/image/fetch/f_auto,q_auto/{orig
 - ❌ `ProbeExists()` — 不再需要 HTTP HEAD 探测
 - ❌ `DeleteResource()` — 不再需要删除旧资源
 - ❌ `lastNictRefreshUtc` — 不再需要复杂的状态管理
-- ❌ NICT API 调用 — 不再需要 `GetImageID()` 等
 
 ### 📦 极简代码架构
 
@@ -67,7 +65,7 @@ CDN URL: https://res.cloudinary.com/{cloud_name}/image/fetch/f_auto,q_auto/{orig
 - `DownloadFile()` — 下载文件（支持 fetch 代理和直连）
 
 **Program.cs** 核心逻辑：
-- `GetQuantizedImageId()` — 本地计算时间戳
+- `GetLatestImageId()` — 请求 API 获取最新时间戳
 - `BuildOriginUrl()` — 构建 himawari.asia 瓦片 URL
 - `SaveImage()` — CDN 模式通过 Cloudinary 下载，Origin 模式直连下载
 - `JoinImage()` — 拼接瓦片为完整壁纸
@@ -84,6 +82,7 @@ CDN URL: https://res.cloudinary.com/{cloud_name}/image/fetch/f_auto,q_auto/{orig
 |------|------|
 | `success` | 提示"壁纸已更新" |
 | `download_failed` | 错误提示"图像下载失败，请检查网络" |
+| `api_failed` | 警告提示"无法获取最新卫星数据，请检查网络" |
 
 ### 🧹 配置简化
 
@@ -141,13 +140,13 @@ CDN URL: https://res.cloudinary.com/{cloud_name}/image/fetch/f_auto,q_auto/{orig
 ```
 UpdateImage()
   │
-  ├─ 1. GetQuantizedImageId() → 本地计算时间戳
-  │     UTC - 90分钟，向下取整到整小时
-  │     格式: "2026/05/29/130000"
-  │     无网络请求
+  ├─ 1. GetLatestImageId() → 请求 himawari.asia/img/D531106/latest.json
+  │     获取源站最新时间戳（精确到 10 分钟）
+  │     格式: "2026/06/26/062000"
+  │     失败 → api_failed，保留当前壁纸
   │
   ├─ 2. 检查是否与上次相同
-  │     相同 → 跳过
+  │     相同 → 跳过（same_image）
   │     不同 → 继续
   │
   ├─ 3. SaveImage() → 下载瓦片
@@ -174,7 +173,7 @@ EarthLiveSharp/
 │   ├── BuildFetchUrl()     # 构建 CDN URL
 │   └── DownloadFile()      # 下载文件
 ├── Program.cs              # 主逻辑
-│   ├── GetQuantizedImageId() # 本地计算时间戳
+│   ├── GetLatestImageId()  # API 获取最新时间戳
 │   ├── BuildOriginUrl()    # 构建源站 URL
 │   ├── SaveImage()         # 下载瓦片
 │   └── JoinImage()         # 拼接图片
@@ -189,6 +188,13 @@ EarthLiveSharp/
 
 ## 📋 更新日志
 
+### 2026-06-27 — 时间戳获取改为 API 模式
+
+- 🔄 `GetQuantizedImageId()` → `GetLatestImageId()`：从本地计算改为请求 `himawari.asia/img/D531106/latest.json`
+- ⏱️ 时间精度从整小时提升到 10 分钟帧级别
+- 🛡️ API 失败时保留当前壁纸 + 气球警告通知（`api_failed`）
+- 📉 数据延迟从 1.5~2.5 小时缩短至约 20~30 分钟
+
 ### 2026-06-09 — UI 重构：实时壁纸预览
 
 - 🖼️ 主界面图片区域改为实时显示 wallpaper.bmp 预览图
@@ -202,7 +208,6 @@ EarthLiveSharp/
 
 - 🌐 图像源改为 `himawari.asia` 镜像站
 - 🚀 使用 Cloudinary fetch 代理模式
-- ⏱️ 本地时间戳量化（零网络请求）
 - 🗑️ 删除 Upload Mode 和多设备协作机制
 - 📦 精简代码架构
 - 🔧 TLS 1.2 强制支持

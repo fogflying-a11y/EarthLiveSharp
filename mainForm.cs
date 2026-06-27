@@ -261,6 +261,9 @@ namespace EarthLiveSharp
                 case "download_failed":
                     notifyIcon1.ShowBalloonTip(3000, "EarthLiveSharp", "图像下载失败，请检查网络", ToolTipIcon.Error);
                     break;
+                case "api_failed":
+                    notifyIcon1.ShowBalloonTip(3000, "EarthLiveSharp", "无法获取最新卫星数据，请检查网络", ToolTipIcon.Warning);
+                    break;
             }
         }
 
