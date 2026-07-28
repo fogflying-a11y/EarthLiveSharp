@@ -1,6 +1,7 @@
 using System;
 using System.Windows.Forms;
 using System.Net;
+using System.Net.Cache;
 using System.IO;
 using System.Diagnostics;
 using Microsoft.Win32;
@@ -77,6 +78,11 @@ namespace EarthLiveSharp
             scraper.ResetState();
         }
 
+        public static void CleanCDN()
+        {
+            scraper.CleanCDN();
+        }
+
         public static string LastUpdateStatus
         {
             get { return scraper.LastUpdateStatus; }
@@ -87,6 +93,7 @@ namespace EarthLiveSharp
     {
         void UpdateImage();
         void ResetState();
+        void CleanCDN();
         string LastUpdateStatus { get; }
     }
     public class Scraper_himawari8 : IScraper
@@ -165,7 +172,7 @@ namespace EarthLiveSharp
                             string fetchUrl = CloudinaryUpload.BuildFetchUrl(Cfg.cloud_name, originUrl);
                             Trace.WriteLine("[cdn] fetch URL: " + fetchUrl);
 
-                            if (!CloudinaryUpload.DownloadFile(fetchUrl, image_path))
+                            if (!CloudinaryUpload.DownloadFileWithRetry(fetchUrl, image_path))
                             {
                                 Trace.WriteLine("[cdn] Cloudinary fetch failed: " + fetchUrl);
                                 return -1;
@@ -289,17 +296,76 @@ namespace EarthLiveSharp
             {
                 JoinImage();
                 lastUpdateStatus = "success";
+                last_imageID = imageID; // 仅在成功后更新，避免瞬时失败导致下一轮误判"unchanged"而跳过此帧
             }
             else
             {
                 lastUpdateStatus = "download_failed";
             }
-            last_imageID = imageID;
         }
 
         public void ResetState()
         {
             last_imageID = "0";
+        }
+
+        /// <summary>
+        /// Clean Cloudinary fetch cache to prevent storage bloat.
+        /// Deletes all cached fetch resources with himawari.asia prefix.
+        /// Requires api_key and api_secret in App.config.
+        /// </summary>
+        public void CleanCDN()
+        {
+            if (Cfg.source_selection != 1) return; // only in CDN mode
+            if (string.IsNullOrEmpty(Cfg.api_key)) return;
+            if (string.IsNullOrEmpty(Cfg.api_secret)) return;
+
+            try
+            {
+                string url = "https://api.cloudinary.com/v1_1/" + Cfg.cloud_name
+                           + "/resources/image/fetch?prefix=https://himawari.asia&max_results=500";
+                HttpWebRequest request = WebRequest.Create(url) as HttpWebRequest;
+                request.Method = "DELETE";
+                request.Timeout = 30000;
+                request.ReadWriteTimeout = 30000;
+                request.CachePolicy = new RequestCachePolicy(RequestCacheLevel.NoCacheNoStore);
+
+                string credentials = Convert.ToBase64String(
+                    System.Text.Encoding.ASCII.GetBytes(Cfg.api_key + ":" + Cfg.api_secret));
+                request.Headers.Add("Authorization", "Basic " + credentials);
+
+                for (int i = 0; i < 3; i++) // max 3 batches per cleanup
+                {
+                    using (HttpWebResponse response = request.GetResponse() as HttpWebResponse)
+                    {
+                        if (response.StatusCode != HttpStatusCode.OK)
+                        {
+                            Trace.WriteLine("[cleanCDN] unexpected status: " + (int)response.StatusCode);
+                            return;
+                        }
+                        using (var reader = new StreamReader(response.GetResponseStream()))
+                        {
+                            string result = reader.ReadToEnd();
+                            if (result.Contains("\"error\""))
+                            {
+                                Trace.WriteLine("[cleanCDN] API error: " + result);
+                                return;
+                            }
+                            if (result.Contains("\"partial\":false"))
+                            {
+                                Trace.WriteLine("[cleanCDN] cache cleanup done");
+                                return;
+                            }
+                            Trace.WriteLine("[cleanCDN] more resources to delete, batch " + (i + 1));
+                        }
+                    }
+                }
+                Trace.WriteLine("[cleanCDN] reached max batches (3), remaining resources will be cleaned next cycle");
+            }
+            catch (Exception e)
+            {
+                Trace.WriteLine("[cleanCDN] error: " + e.Message);
+            }
         }
     }
 

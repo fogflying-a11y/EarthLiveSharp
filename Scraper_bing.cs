@@ -68,6 +68,11 @@ namespace EarthLiveSharp
             LastUpdateStatus = "";
         }
 
+        public void CleanCDN()
+        {
+            // Bing scraper does not use Cloudinary — no-op
+        }
+
         private void InitFolder()
         {
             if (!Directory.Exists(Cfg.image_folder))

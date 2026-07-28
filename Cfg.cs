@@ -16,6 +16,8 @@ namespace EarthLiveSharp
         public static int size;
         public static int zoom;
         public static string cloud_name;
+        public static string api_key;
+        public static string api_secret;
         public static int source_selection;
         public static bool saveTexture;
         public static string saveDirectory;
@@ -36,6 +38,8 @@ namespace EarthLiveSharp
                 size = Convert.ToInt32(app.Settings["size"].Value);
                 zoom = Convert.ToInt32(app.Settings["zoom"].Value);
                 cloud_name = app.Settings["cloud_name"].Value;
+                api_key = app.Settings["api_key"].Value;
+                api_secret = app.Settings["api_secret"].Value;
                 source_selection = Convert.ToInt16(app.Settings["source_selection"].Value);
                 saveTexture = Convert.ToBoolean(app.Settings["saveTexture"].Value);
                 saveDirectory = Convert.ToString(app.Settings["saveDirectory"].Value);
@@ -59,6 +63,8 @@ namespace EarthLiveSharp
             app.Settings["setwallpaper"].Value = setwallpaper.ToString();
             app.Settings["size"].Value = size.ToString();
             app.Settings["cloud_name"].Value = cloud_name;
+            app.Settings["api_key"].Value = api_key;
+            app.Settings["api_secret"].Value = api_secret;
             app.Settings["source_selection"].Value = source_selection.ToString();
             app.Settings["zoom"].Value = zoom.ToString();
             app.Settings["saveTexture"].Value = saveTexture.ToString();

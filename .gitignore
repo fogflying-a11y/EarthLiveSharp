@@ -6,6 +6,8 @@
 
 # Local files - do not track
 CONVERSATION_RECORD.md
+CLAUDE.md
+HIMAWARI_MIGRATION.md
 Program.dll
 EarthLiveSharp.csproj.user
 docs/superpowers/

@@ -17,6 +17,7 @@ namespace EarthLiveSharp
         ContextMenu trayMenu = new ContextMenu();
 
         System.Timers.Timer timer1 = new System.Timers.Timer(); // timer to update image
+        System.Timers.Timer timerCleanCDN = new System.Timers.Timer(); // timer to clean CDN cache
         static int inTimer1 = 0; // lock for timer1
         string lastNotifiedStatus = ""; // tracks which status already notified
 
@@ -45,6 +46,17 @@ namespace EarthLiveSharp
             timer1.Elapsed += new System.Timers.ElapsedEventHandler(timer1_Tick);
             timer1.AutoReset = true;
             timer1.Enabled = false;
+
+            // Clean CDN cache every 10 hours
+            timerCleanCDN.Elapsed += new System.Timers.ElapsedEventHandler(timerCleanCDN_Tick);
+            timerCleanCDN.Interval = 10 * 60 * 60 * 1000; // 10 hours
+            timerCleanCDN.AutoReset = true;
+            timerCleanCDN.Enabled = false;
+        }
+
+        private void timerCleanCDN_Tick(object sender, EventArgs e)
+        {
+            Scrap_wrapper.CleanCDN();
         }
 
         private void startService_Click(object sender, EventArgs e)
@@ -194,6 +206,7 @@ namespace EarthLiveSharp
             if (serviceRunning)
             {
                 timer1.Stop();
+                timerCleanCDN.Stop();
                 button_start.Enabled = true;
                 button_stop.Enabled = false;
                 button_settings.Enabled = true;
@@ -217,6 +230,7 @@ namespace EarthLiveSharp
                 button_settings.Enabled = false;
                 timer1.Interval = 1000; // trick to trigger timer immediately.
                 timer1.Start();
+                timerCleanCDN.Start();
                 serviceRunning = true;
                 runningLabel.Text = "    Running";
                 runningLabel.ForeColor = Color.DarkGreen;

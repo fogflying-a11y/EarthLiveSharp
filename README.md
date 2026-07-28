@@ -60,9 +60,12 @@ CDN URL: https://res.cloudinary.com/{cloud_name}/image/fetch/f_auto,q_auto/{orig
 
 ### 📦 极简代码架构
 
-**CloudinaryUpload.cs**（仅 57 行）：
+**CloudinaryUpload.cs**：
 - `BuildFetchUrl()` — 构建 Cloudinary fetch URL
-- `DownloadFile()` — 下载文件（支持 fetch 代理和直连）
+- `DownloadFile()` — 源站直连下载（单次尝试，失败返回 false）
+- `DownloadFileWithRetry()` — CDN 下载（瞬时失败按指数退避重试）
+- `DownloadFileCore()` — 下载核心实现（失败抛异常，供重试逻辑区分错误类型）
+- `IsTransient()` — 判定是否为瞬时错误（超时/连接类/5xx）
 
 **Program.cs** 核心逻辑：
 - `GetLatestImageId()` — 请求 API 获取最新时间戳
@@ -73,8 +76,10 @@ CDN URL: https://res.cloudinary.com/{cloud_name}/image/fetch/f_auto,q_auto/{orig
 ### 🔒 稳定性改进
 
 - ✅ **TLS 1.2 强制启用**
-- ✅ **读写超时控制** — `Timeout=15s`，`ReadWriteTimeout=30s`
-- ✅ **简洁的错误处理** — 失败直接返回，不重试
+- ✅ **显式超时控制** — 连接+响应 与 流读写 均为 30s（`Timeout=30s`，`ReadWriteTimeout=30s`）
+- ✅ **CDN 下载重试机制** — 瞬时失败（超时/连接类错误/5xx）按指数退避 2s→4s→8s 最多重试 3 次
+- ✅ **错误分类** — 4xx（400/401/403/404）视为非瞬时错误，不重试，直接放弃本轮
+- ✅ **漏帧修复** — 仅在下载并拼图成功后更新 `last_imageID`，避免瞬时失败导致下一周期误判"unchanged"而跳过该帧
 
 ### 💬 UI 气球通知
 
@@ -154,11 +159,11 @@ UpdateImage()
   │     ├─ CDN 模式:
   │     │   BuildOriginUrl() → himawari.asia URL
   │     │   BuildFetchUrl() → Cloudinary fetch URL
-  │     │   DownloadFile() → 下载
+  │     │   DownloadFileWithRetry() → 下载（瞬时失败重试 3 次，退避 2/4/8s）
   │     │
   │     └─ Origin 模式:
   │         BuildOriginUrl() → himawari.asia URL
-  │         DownloadFile() → 直接下载
+  │         DownloadFile() → 直接下载（单次尝试，维持原行为）
   │
   ├─ 4. JoinImage() → 拼接瓦片为完整壁纸
   │
@@ -169,9 +174,12 @@ UpdateImage()
 
 ```
 EarthLiveSharp/
-├── CloudinaryUpload.cs     # Cloudinary fetch 代理 (57行)
-│   ├── BuildFetchUrl()     # 构建 CDN URL
-│   └── DownloadFile()      # 下载文件
+├── CloudinaryUpload.cs     # Cloudinary fetch 代理 + 下载/重试
+│   ├── BuildFetchUrl()         # 构建 CDN URL
+│   ├── DownloadFile()          # 源站直连（单次尝试）
+│   ├── DownloadFileWithRetry() # CDN 下载（瞬时失败重试）
+│   ├── DownloadFileCore()      # 下载核心实现（失败抛异常）
+│   └── IsTransient()           # 判定瞬时错误
 ├── Program.cs              # 主逻辑
 │   ├── GetLatestImageId()  # API 获取最新时间戳
 │   ├── BuildOriginUrl()    # 构建源站 URL
@@ -187,6 +195,26 @@ EarthLiveSharp/
 ---
 
 ## 📋 更新日志
+
+### 2026-07-28 — CDN 下载重试机制 + 漏帧修复
+
+从姊妹项目（主分支 EarthLiveSharp）移植 CDN 更新逻辑与重试机制。
+
+**1. CloudinaryUpload.cs 重构（下载 + 重试）**
+- 新增 `DownloadFileCore()`：下载核心实现，显式设置 `Timeout` 与 `ReadWriteTimeout` 均为 30s，失败时抛出异常，供上层区分错误类型。
+- 新增 `DownloadFileWithRetry()`：CDN 下载专用，瞬时失败按**指数退避 2s→4s→8s 最多重试 3 次**；非瞬时错误或重试耗尽返回 false。
+- 新增 `IsTransient()`：判定瞬时错误——超时/连接类错误（Timeout、ConnectFailure、ConnectionClosed、KeepAliveFailure、SendFailure、ReceiveFailure）或 5xx；4xx（400/401/403/404）视为非瞬时，不重试。
+- 保留 `DownloadFile()`：源站直连单次尝试（吞掉异常返回 bool），维持原有行为。
+
+**2. Program.cs 接入重试**
+- `SaveImage()` 的 CDN 分支由 `DownloadFile` 改为 `CloudinaryUpload.DownloadFileWithRetry(fetchUrl, image_path)`，以单个瓦片为粒度重试；任一瓦片重试耗尽仍失败则整轮放弃（返回 -1）。
+- Origin 直连分支与 Bing 壁纸逻辑均不受影响。
+
+**3. 漏帧修复（`last_imageID`）**
+- 原逻辑无论下载成功与否都会更新 `last_imageID`，瞬时失败后下一周期会误判为"same_image"而**跳过该帧**。
+- 现仅在 `SaveImage()` 成功并完成 `JoinImage()` 后才更新 `last_imageID`。
+
+**验证**：使用 Visual Studio MSBuild 编译通过（.NET Framework 4.0）。
 
 ### 2026-06-27 — 时间戳获取改为 API 模式
 
