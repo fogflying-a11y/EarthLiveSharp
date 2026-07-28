@@ -198,7 +198,7 @@ EarthLiveSharp/
 
 ### 2026-07-28 — CDN 下载重试机制 + 漏帧修复
 
-从姊妹项目（主分支 EarthLiveSharp）移植 CDN 更新逻辑与重试机制。
+完全恢复从（主分支 EarthLiveSharp）CDN 更新的逻辑，并增加重试机制。
 
 **1. CloudinaryUpload.cs 重构（下载 + 重试）**
 - 新增 `DownloadFileCore()`：下载核心实现，显式设置 `Timeout` 与 `ReadWriteTimeout` 均为 30s，失败时抛出异常，供上层区分错误类型。
@@ -214,7 +214,7 @@ EarthLiveSharp/
 - 原逻辑无论下载成功与否都会更新 `last_imageID`，瞬时失败后下一周期会误判为"same_image"而**跳过该帧**。
 - 现仅在 `SaveImage()` 成功并完成 `JoinImage()` 后才更新 `last_imageID`。
 
-**验证**：使用 Visual Studio MSBuild 编译通过（.NET Framework 4.0）。
+
 
 ### 2026-06-27 — 时间戳获取改为 API 模式
 
