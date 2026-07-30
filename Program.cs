@@ -104,42 +104,57 @@ namespace EarthLiveSharp
         public string LastUpdateStatus { get { return lastUpdateStatus; } }
 
         /// <summary>
-        /// Fetch the latest image timestamp from himawari.asia API.
+        /// Fetch the latest image timestamp from himawari.asia API with retry.
         /// Returns format: "2026/06/26/062000"
-        /// Returns null on failure.
+        /// Returns null after all retries exhausted.
         /// </summary>
         private string GetLatestImageId()
         {
-            try
-            {
-                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
-                var request = WebRequest.Create("https://himawari.asia/img/D531106/latest.json") as HttpWebRequest;
-                request.Timeout = 10000;
-                request.ReadWriteTimeout = 10000;
+            const int maxRetries = 3;
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
 
-                using (var response = request.GetResponse() as HttpWebResponse)
+            for (int attempt = 1; attempt <= maxRetries; attempt++)
+            {
+                try
                 {
-                    if (response.StatusCode != HttpStatusCode.OK) return null;
-                    using (var reader = new StreamReader(response.GetResponseStream()))
+                    var request = WebRequest.Create("https://himawari.asia/img/D531106/latest.json") as HttpWebRequest;
+                    request.Timeout = 15000;
+                    request.ReadWriteTimeout = 15000;
+
+                    using (var response = request.GetResponse() as HttpWebResponse)
                     {
-                        string json = reader.ReadToEnd();
-                        // Parse: {"date":"2026-06-26 06:20:00","file":"..."}
-                        int dateStart = json.IndexOf("\"date\":\"") + 8;
-                        int dateEnd = json.IndexOf("\"", dateStart);
-                        if (dateStart < 8 || dateEnd < 0) return null;
-                        string dateStr = json.Substring(dateStart, dateEnd - dateStart);
-                        // "2026-06-26 06:20:00" → "2026/06/26/062000"
-                        return dateStr.Replace("-", "/")
-                                      .Replace(":", "")
-                                      .Replace(" ", "/");
+                        if (response.StatusCode != HttpStatusCode.OK) return null;
+                        using (var reader = new StreamReader(response.GetResponseStream()))
+                        {
+                            string json = reader.ReadToEnd();
+                            // Parse: {"date":"2026-06-26 06:20:00","file":"..."}
+                            int dateStart = json.IndexOf("\"date\":\"") + 8;
+                            int dateEnd = json.IndexOf("\"", dateStart);
+                            if (dateStart < 8 || dateEnd < 0) return null;
+                            string dateStr = json.Substring(dateStart, dateEnd - dateStart);
+                            // "2026-06-26 06:20:00" → "2026/06/26/062000"
+                            string result = dateStr.Replace("-", "/")
+                                                   .Replace(":", "")
+                                                   .Replace(" ", "/");
+                            if (attempt > 1)
+                                Trace.WriteLine(string.Format("[api] succeeded on attempt {0}", attempt));
+                            return result;
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    Trace.WriteLine(string.Format("[api] attempt {0}/{1} failed: {2}", attempt, maxRetries, e.Message));
+                    if (attempt < maxRetries)
+                    {
+                        int wait = (int)Math.Pow(2, attempt) * 1000; // 2s / 4s
+                        Trace.WriteLine(string.Format("[api] retrying in {0}ms...", wait));
+                        System.Threading.Thread.Sleep(wait);
                     }
                 }
             }
-            catch (Exception e)
-            {
-                Trace.WriteLine("[api] failed to fetch latest: " + e.Message);
-                return null;
-            }
+            Trace.WriteLine("[api] failed after " + maxRetries + " attempts");
+            return null;
         }
 
         /// <summary>
@@ -180,8 +195,8 @@ namespace EarthLiveSharp
                         }
                         else
                         {
-                            // Origin mode: direct download from NICT
-                            if (!CloudinaryUpload.DownloadFile(originUrl, image_path))
+                            // Origin mode: direct download with retry
+                            if (!CloudinaryUpload.DownloadFileWithRetry(originUrl, image_path))
                             {
                                 Trace.WriteLine("[origin] download failed: " + originUrl);
                                 return -1;
