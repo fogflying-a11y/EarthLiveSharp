@@ -59,7 +59,6 @@ namespace EarthLiveSharp
 
     public static class Scrap_wrapper
     {
-        public static int SequenceCount = 0;
         private static IScraper scraper;
         public static void set_scraper()
         {
@@ -104,57 +103,98 @@ namespace EarthLiveSharp
         public string LastUpdateStatus { get { return lastUpdateStatus; } }
 
         /// <summary>
-        /// Fetch the latest image timestamp from himawari.asia API with retry.
-        /// Returns format: "2026/06/26/062000"
-        /// Returns null after all retries exhausted.
+        /// Timestamp API endpoints. NICT (official source, different network path)
+        /// serves the same JSON format as the himawari.asia mirror.
+        /// Note: proxying latest.json through Cloudinary is NOT possible without
+        /// API keys — raw/fetch is rejected ("Invalid value fetch for parameter type")
+        /// and image/fetch rejects JSON payloads ("Invalid image file").
+        /// Both modes therefore use the same two-source direct cascade below.
+        /// </summary>
+        private const string LatestJsonUrl = "https://himawari.asia/img/D531106/latest.json";
+        private const string NictLatestJsonUrl = "https://himawari8.nict.go.jp/img/D531106/latest.json";
+
+        /// <summary>
+        /// Fetch the latest image timestamp with source fallback.
+        /// Returns format: "2026/06/26/062000", or null when all sources fail.
+        ///
+        /// Two rounds of [himawari.asia → NICT], with 2s/4s backoff between rounds.
+        /// Each source gets at most 2 tries; worst case ~62s (4 × 15s timeout).
         /// </summary>
         private string GetLatestImageId()
         {
-            const int maxRetries = 3;
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
 
-            for (int attempt = 1; attempt <= maxRetries; attempt++)
+            const int maxRounds = 2;
+            for (int round = 1; round <= maxRounds; round++)
             {
-                try
-                {
-                    var request = WebRequest.Create("https://himawari.asia/img/D531106/latest.json") as HttpWebRequest;
-                    request.Timeout = 15000;
-                    request.ReadWriteTimeout = 15000;
+                // Tier 1: himawari.asia mirror
+                string id = TryFetchImageId(LatestJsonUrl, string.Format("direct r{0}", round));
+                if (id != null) return id;
 
-                    using (var response = request.GetResponse() as HttpWebResponse)
-                    {
-                        if (response.StatusCode != HttpStatusCode.OK) return null;
-                        using (var reader = new StreamReader(response.GetResponseStream()))
-                        {
-                            string json = reader.ReadToEnd();
-                            // Parse: {"date":"2026-06-26 06:20:00","file":"..."}
-                            int dateStart = json.IndexOf("\"date\":\"") + 8;
-                            int dateEnd = json.IndexOf("\"", dateStart);
-                            if (dateStart < 8 || dateEnd < 0) return null;
-                            string dateStr = json.Substring(dateStart, dateEnd - dateStart);
-                            // "2026-06-26 06:20:00" → "2026/06/26/062000"
-                            string result = dateStr.Replace("-", "/")
-                                                   .Replace(":", "")
-                                                   .Replace(" ", "/");
-                            if (attempt > 1)
-                                Trace.WriteLine(string.Format("[api] succeeded on attempt {0}", attempt));
-                            return result;
-                        }
-                    }
-                }
-                catch (Exception e)
+                // Tier 2: NICT official source (same JSON format, different route)
+                id = TryFetchImageId(NictLatestJsonUrl, string.Format("nict r{0}", round));
+                if (id != null) return id;
+
+                if (round < maxRounds)
                 {
-                    Trace.WriteLine(string.Format("[api] attempt {0}/{1} failed: {2}", attempt, maxRetries, e.Message));
-                    if (attempt < maxRetries)
+                    int wait = (int)Math.Pow(2, round) * 1000; // 2s / 4s
+                    Trace.WriteLine(string.Format("[api] both sources failed, retrying round {0} in {1}ms...", round + 1, wait));
+                    System.Threading.Thread.Sleep(wait);
+                }
+            }
+            Trace.WriteLine("[api] failed after " + maxRounds + " rounds (himawari.asia + NICT)");
+            return null;
+        }
+
+        /// <summary>
+        /// Single GET of a latest.json-style endpoint. Returns the parsed imageID
+        /// ("2026/06/26/062000"), or null on any failure (network, non-200, bad payload).
+        /// </summary>
+        private string TryFetchImageId(string url, string label)
+        {
+            try
+            {
+                var request = WebRequest.Create(url) as HttpWebRequest;
+                request.Timeout = 15000;
+                request.ReadWriteTimeout = 15000;
+
+                using (var response = request.GetResponse() as HttpWebResponse)
+                {
+                    if (response.StatusCode != HttpStatusCode.OK)
                     {
-                        int wait = (int)Math.Pow(2, attempt) * 1000; // 2s / 4s
-                        Trace.WriteLine(string.Format("[api] retrying in {0}ms...", wait));
-                        System.Threading.Thread.Sleep(wait);
+                        Trace.WriteLine(string.Format("[api] {0}: HTTP {1}", label, (int)response.StatusCode));
+                        return null;
+                    }
+                    using (var reader = new StreamReader(response.GetResponseStream()))
+                    {
+                        string id = ParseImageId(reader.ReadToEnd());
+                        if (id == null)
+                            Trace.WriteLine(string.Format("[api] {0}: unparseable response", label));
+                        return id;
                     }
                 }
             }
-            Trace.WriteLine("[api] failed after " + maxRetries + " attempts");
-            return null;
+            catch (Exception e)
+            {
+                Trace.WriteLine(string.Format("[api] {0} failed: {1}", label, e.Message));
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Parse {"date":"2026-06-26 06:20:00","file":"..."} into "2026/06/26/062000".
+        /// Works on the raw byte stream regardless of Content-Type.
+        /// Returns null if the payload doesn't contain a usable date field.
+        /// </summary>
+        private string ParseImageId(string json)
+        {
+            int dateStart = json.IndexOf("\"date\":\"") + 8;
+            int dateEnd = json.IndexOf("\"", dateStart);
+            if (dateStart < 8 || dateEnd < 0) return null;
+            string dateStr = json.Substring(dateStart, dateEnd - dateStart);
+            return dateStr.Replace("-", "/")
+                          .Replace(":", "")
+                          .Replace(" ", "/");
         }
 
         /// <summary>
@@ -257,14 +297,12 @@ namespace EarthLiveSharp
 
             if (Cfg.saveTexture && Cfg.saveDirectory != "selected Directory")
             {
-                if (Scrap_wrapper.SequenceCount >= Cfg.saveMaxCount)
-                {
-                    Scrap_wrapper.SequenceCount = 0;
-                }
                 try
                 {
-                    File.Copy(string.Format("{0}\\wallpaper.bmp", Cfg.image_folder), Cfg.saveDirectory + "\\" + "wallpaper_" + Scrap_wrapper.SequenceCount + ".bmp", true);
-                    Scrap_wrapper.SequenceCount++;
+                    // 文件名使用卫星拍摄时间：imageID 形如 "2026-09-02/062000"，
+                    // 由 ParseImageId 以字面量替换生成（与文化无关），斜杠换成短横线以符合文件名规范
+                    string fileName = "wallpaper_" + imageID.Replace("/", "-") + ".bmp";
+                    File.Copy(string.Format("{0}\\wallpaper.bmp", Cfg.image_folder), Cfg.saveDirectory + "\\" + fileName, true);
                 }
                 catch (Exception e)
                 {

@@ -39,15 +39,16 @@
 CDN URL: https://res.cloudinary.com/{cloud_name}/image/fetch/f_auto,q_auto/{original_url}
 ```
 
-### ⏱️ API 时间戳获取（精确到 10 分钟）
+### ⏱️ API 时间戳获取（精确到 10 分钟，双源容灾）
 
 **原项目**：请求 NICT 官方源 `latest.json` 获取最新时间戳
 
-**本项目**：请求 `himawari.asia` 镜像站的 `latest.json`（~3KB）获取最新时间戳：
+**本项目**：请求 `himawari.asia` 镜像站的 `latest.json`（~3KB）获取最新时间戳，失败时自动切换 NICT 官方源：
+- 双源级联：himawari.asia → NICT（`himawari8.nict.go.jp`），共 2 轮、轮间退避 2s/4s，应对单一线路瞬时故障
 - 源站发布即可获取，无需本地估算延迟
 - 精确到 10 分钟帧级别（Himawari-8 实际更新频率）
 - 格式：`yyyy/MM/dd/HHMM00`
-- API 失败时保留当前壁纸，不盲目下载
+- 全部失败时保留当前壁纸，不盲目下载
 
 ### 🗑️ 删除了复杂的多设备协作机制
 
@@ -145,10 +146,10 @@ CDN URL: https://res.cloudinary.com/{cloud_name}/image/fetch/f_auto,q_auto/{orig
 ```
 UpdateImage()
   │
-  ├─ 1. GetLatestImageId() → 请求 himawari.asia/img/D531106/latest.json
-  │     获取源站最新时间戳（精确到 10 分钟）
-  │     格式: "2026/06/26/062000"
-  │     失败 → api_failed，保留当前壁纸
+  ├─ 1. GetLatestImageId() → 双源级联请求 latest.json
+  │     himawari.asia 镜像站 → 失败则 NICT 官方源（共 2 轮，轮间退避 2s/4s）
+  │     获取最新时间戳（精确到 10 分钟），格式: "2026/06/26/062000"
+  │     全部失败 → api_failed，保留当前壁纸
   │
   ├─ 2. 检查是否与上次相同
   │     相同 → 跳过（same_image）
@@ -181,10 +182,12 @@ EarthLiveSharp/
 │   ├── DownloadFileCore()      # 下载核心实现（失败抛异常）
 │   └── IsTransient()           # 判定瞬时错误
 ├── Program.cs              # 主逻辑
-│   ├── GetLatestImageId()  # API 获取最新时间戳
+│   ├── GetLatestImageId()  # 双源级联获取最新时间戳
+│   ├── TryFetchImageId()   # 单次请求（15s 超时）
+│   ├── ParseImageId()      # 解析时间戳
 │   ├── BuildOriginUrl()    # 构建源站 URL
 │   ├── SaveImage()         # 下载瓦片
-│   └── JoinImage()         # 拼接图片
+│   └── JoinImage()         # 拼接图片 + 按拍摄时间归档
 ├── Cfg.cs                  # 配置管理
 ├── mainForm.cs             # 主界面
 ├── settingsForm.cs         # 设置界面
@@ -195,6 +198,21 @@ EarthLiveSharp/
 ---
 
 ## 📋 更新日志
+
+### 2026-09-02 — 双源时间戳级联 (v3.23) + 归档文件按拍摄时间命名 (v3.24)
+
+**1. latest.json 双源级联（v3.23，修复频繁的 `api_failed`）**
+
+- 诊断：到 himawari.asia 镜像站的国际链路偶发劣化/阻断，单一源获取时间戳频繁超时。
+- `GetLatestImageId()` 重构为 [himawari.asia → NICT 官方源] 级联：每轮依次尝试两个源，共 2 轮，轮间指数退避 2s/4s；两源同为官方数据出口、网络路径不同，互为容灾。
+- 抽出 `TryFetchImageId()`（单次 GET，15s 超时）与 `ParseImageId()`（解析逻辑与原实现一致）。
+- 说明：曾评估将 latest.json 经 Cloudinary 代理，实测不可行——`raw/fetch` 拒绝 fetch 投递（400 "Invalid value fetch for parameter type"），`image/fetch` 拒绝非图片内容（400 "Invalid image file"），故采用双源直连方案。
+
+**2. 壁纸归档按卫星拍摄时间命名（v3.24）**
+
+- 勾选"保存卫星图片"后，归档文件名由 `wallpaper_{序号}.bmp` 改为 `wallpaper_{拍摄时间}.bmp`，如 `wallpaper_2026-09-02-062000.bmp`（UTC 帧时间，与日志中的 imageID 对应）。
+- 移除"最大数量"（`saveMaxCount`）上限机制：数字序号原为循环覆盖以限制磁盘占用，时间戳命名后文件互不覆盖、无限累积；设置界面同步移除该输入框，`Cfg.cs` / `App.config` 中的配置项一并删除。
+- ⚠️ 高分辨率 + 短间隔配置下归档单日累积可达约 1.4GB，请留意归档目录容量。
 
 ### 2026-07-28 — CDN 下载重试机制 + 漏帧修复
 

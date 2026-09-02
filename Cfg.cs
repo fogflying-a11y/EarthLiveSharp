@@ -21,7 +21,6 @@ namespace EarthLiveSharp
         public static int source_selection;
         public static bool saveTexture;
         public static string saveDirectory;
-        public static int saveMaxCount;
 
         public static void Load()
         {
@@ -43,7 +42,6 @@ namespace EarthLiveSharp
                 source_selection = Convert.ToInt16(app.Settings["source_selection"].Value);
                 saveTexture = Convert.ToBoolean(app.Settings["saveTexture"].Value);
                 saveDirectory = Convert.ToString(app.Settings["saveDirectory"].Value);
-                saveMaxCount = Convert.ToInt32(app.Settings["saveMaxCount"].Value);
             }
             catch (Exception e)
             {
@@ -69,7 +67,6 @@ namespace EarthLiveSharp
             app.Settings["zoom"].Value = zoom.ToString();
             app.Settings["saveTexture"].Value = saveTexture.ToString();
             app.Settings["saveDirectory"].Value = saveDirectory;
-            app.Settings["saveMaxCount"].Value = saveMaxCount.ToString();
             config.Save();
         }
     }

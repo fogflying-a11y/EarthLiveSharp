@@ -19,7 +19,6 @@ namespace EarthLiveSharp
             Cfg.autostart = autostart.Checked;
             Cfg.setwallpaper = setwallpaper.Checked;
             Cfg.saveTexture = Save_Texture.Checked;
-            Cfg.saveMaxCount = (int)Save_Max_Count.Value;
             Cfg.saveDirectory = Directory_Display.Text;
 
             if (radioButton_CDN.Checked)
@@ -68,7 +67,6 @@ namespace EarthLiveSharp
             interval.Value = Cfg.interval;
             image_zoom.Value = Cfg.zoom;
             Save_Texture.Checked = Cfg.saveTexture;
-            Save_Max_Count.Value = Cfg.saveMaxCount;
             Directory_Display.Text = Cfg.saveDirectory;
 
             switch (Cfg.source_selection)

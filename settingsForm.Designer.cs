@@ -59,15 +59,12 @@
             this.panel4 = new System.Windows.Forms.Panel();
             this.Directory_Display = new System.Windows.Forms.Label();
             this.Selected_Directory = new System.Windows.Forms.Button();
-            this.Save_Max_Count = new System.Windows.Forms.NumericUpDown();
-            this.SaveMaxCount = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.interval)).BeginInit();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.image_zoom)).BeginInit();
             this.panel2.SuspendLayout();
             this.panel3.SuspendLayout();
             this.panel4.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.Save_Max_Count)).BeginInit();
             this.SuspendLayout();
             // 
             // linkLabel1
@@ -291,8 +288,6 @@
             this.panel3.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.panel3.Controls.Add(this.panel4);
             this.panel3.Controls.Add(this.Selected_Directory);
-            this.panel3.Controls.Add(this.Save_Max_Count);
-            this.panel3.Controls.Add(this.SaveMaxCount);
             this.panel3.Name = "panel3";
             // 
             // panel4
@@ -312,24 +307,9 @@
             this.Selected_Directory.Name = "Selected_Directory";
             this.Selected_Directory.UseVisualStyleBackColor = true;
             this.Selected_Directory.Click += new System.EventHandler(this.Selected_Directory_Click);
-            // 
-            // Save_Max_Count
-            // 
-            resources.ApplyResources(this.Save_Max_Count, "Save_Max_Count");
-            this.Save_Max_Count.Maximum = new decimal(new int[] {
-            99999,
-            0,
-            0,
-            0});
-            this.Save_Max_Count.Name = "Save_Max_Count";
-            // 
-            // SaveMaxCount
-            // 
-            resources.ApplyResources(this.SaveMaxCount, "SaveMaxCount");
-            this.SaveMaxCount.Name = "SaveMaxCount";
-            // 
+            //
             // settingsForm
-            // 
+            //
             resources.ApplyResources(this, "$this");
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.Controls.Add(this.panel3);
@@ -354,7 +334,6 @@
             this.panel3.ResumeLayout(false);
             this.panel3.PerformLayout();
             this.panel4.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.Save_Max_Count)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -386,10 +365,8 @@
         private System.Windows.Forms.ComboBox satellite;
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.Panel panel3;
-        private System.Windows.Forms.Label SaveMaxCount;
         private System.Windows.Forms.CheckBox Save_Texture;
         private System.Windows.Forms.Label Directory_Display;
-        private System.Windows.Forms.NumericUpDown Save_Max_Count;
         private System.Windows.Forms.Button Selected_Directory;
         private System.Windows.Forms.CheckBox setwallpaper;
         private System.Windows.Forms.Panel panel4;
